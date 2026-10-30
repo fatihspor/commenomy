@@ -19,6 +19,8 @@ assert.match(web,/id="land"/,'My Lands screen missing');
 assert.doesNotMatch(web,/s\.lands>=3/,'Land ownership must not have a fixed player cap');
 assert.match(web,/s\.landSupply<=0/,'Land sales must respect state supply');
 assert.match(web,/s\.day%7===0/,'State must release land periodically');
+assert.match(web,/id="saveLandPlan"/,'Government land policy editor missing');
+assert.match(web,/function saveLandPlan\(/,'Government land policy save handler missing');
 assert.match(web,/s\.cash<0/,'Negative balance warning missing');
 assert.match(web,/gün kaldı/,'Construction countdown missing');
 assert.match(web,/USD/,'USD currency display missing');
