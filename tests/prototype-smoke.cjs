@@ -71,3 +71,55 @@ assert.equal(JSON.parse(storage.get('commenomy-demo-v2')).stock,10,'Daily factor
 assert.match(context.money(25),/USD/,'Currency formatter must show USD');
 console.log('PASS: gameplay flow land -> warehouse -> production -> sale');
 console.log('PASS: synchronized Android assets, valid JavaScript, required screens and basic economy guards');
+
+
+// Adversarial economy checks: invalid input must not mint cash or goods.
+function snapshot(){return JSON.stringify(JSON.parse(storage.get('commenomy-demo-v2')))}
+function unchanged(action,description){const before=snapshot();action();assert.equal(snapshot(),before,description)}
+node('qty').value='-10';node('price').value='8';
+unchanged(()=>context.sell(),'Negative quantity must not create money');
+node('qty').value='1.5';
+unchanged(()=>context.sell(),'Fractional quantity must be rejected');
+node('qty').value='Infinity';
+unchanged(()=>context.sell(),'Infinite quantity must be rejected');
+node('qty').value='10';node('price').value='Infinity';
+unchanged(()=>context.sell(),'Infinite price must be rejected');
+node('price').value='0';
+unchanged(()=>context.sell(),'Zero price must be rejected');
+node('price').value='1000';
+unchanged(()=>context.sell(),'Excessive price must be rejected');
+node('price').value='8';node('qty').value='999';
+unchanged(()=>context.sell(),'Cannot sell more inventory than owned');
+const beforeInvalidPlan=snapshot();
+node('planIndustrial').value='-1';
+context.saveLandPlan();
+assert.equal(snapshot(),beforeInvalidPlan,'Negative government land supply rejected');
+node('planIndustrial').value='1.5';
+context.saveLandPlan();
+assert.equal(snapshot(),beforeInvalidPlan,'Fractional government land supply rejected');
+node('planIndustrial').value='2';
+const beforeSecondLand=JSON.parse(storage.get('commenomy-demo-v2'));
+context.buyLand();
+assert.equal(JSON.parse(storage.get('commenomy-demo-v2')).lands,beforeSecondLand.lands+1);
+const afterLand=JSON.parse(storage.get('commenomy-demo-v2'));
+for(let i=0;i<5;i++)context.buyLand();
+assert.equal(JSON.parse(storage.get('commenomy-demo-v2')).lands,afterLand.lands,'Cannot buy land without funds');
+const beforeLoan=JSON.parse(storage.get('commenomy-demo-v2'));
+context.borrow();
+const afterLoan=JSON.parse(storage.get('commenomy-demo-v2'));
+assert.equal(afterLoan.loan,100,'Loan principal must be recorded');
+assert.equal(afterLoan.cash,beforeLoan.cash+100,'Loan disbursement must match principal');
+unchanged(()=>context.borrow(),'Cannot take overlapping loans');
+context.repay();
+const afterRepay=JSON.parse(storage.get('commenomy-demo-v2'));
+assert.equal(afterRepay.loan,0,'Loan repayment clears principal');
+assert.equal(afterRepay.cash,beforeLoan.cash,'Loan borrowing and repayment cannot mint cash');
+for(let day=0;day<100;day++){
+  context.nextDay();
+  const st=JSON.parse(storage.get('commenomy-demo-v2'));
+  assert.ok(Number.isFinite(st.cash)&&Number.isFinite(st.loan),'Non-finite economy balance');
+  assert.ok(Number.isInteger(st.stock)&&st.stock>=0&&st.stock<=st.capacity,'Inventory bounds');
+  assert.ok(st.loan>=0&&st.lands>=0&&st.landSupply>=0,'Nonnegative assets and obligations');
+  assert.equal(st.landSupply,Object.values(st.landSupplyByType).reduce((a,b)=>a+b,0),'State land supply consistency');
+}
+console.log('PASS: 100-day simulation, credit repayment invariants, invalid-sale and land-policy abuse checks');
