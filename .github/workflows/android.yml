@@ -9,6 +9,8 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+      - name: Validate prototype and Android assets
+        run: node tests/prototype-smoke.cjs
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -39,6 +41,7 @@ jobs:
           unzip -t "$APK"
           unzip -Z1 "$APK" | grep -Fx classes.dex
           unzip -Z1 "$APK" | grep -Fx assets/index.html
+          test "$(stat -c%s "$APK")" -gt 20000
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee apk-badging.txt
           grep -F "package: name='com.commenomy.game'" apk-badging.txt
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK"
