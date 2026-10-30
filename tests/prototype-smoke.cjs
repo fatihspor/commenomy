@@ -125,3 +125,22 @@ for(let day=0;day<100;day++){
   assert.equal(st.landSupply,Object.values(st.landSupplyByType).reduce((a,b)=>a+b,0),'State land supply consistency');
 }
 console.log('PASS: 100-day simulation, credit repayment invariants, invalid-sale and land-policy abuse checks');
+
+
+// Long-run active economy: repeat production and citizen sales across 365 game days.
+context.start();
+node('qty').value='10';node('price').value='8';
+for(let day=1;day<=365;day++){
+  context.produce();
+  let st=JSON.parse(storage.get('commenomy-demo-v2'));
+  assert.equal(st.stock,10,'Production must add exactly 10 units on day '+day);
+  assert.equal(st.dailyProduced,10,'Daily factory limit must be consumed on day '+day);
+  unchanged(()=>context.produce(),'Factory must reject second production on day '+day);
+  context.sell();
+  st=JSON.parse(storage.get('commenomy-demo-v2'));
+  assert.equal(st.stock,0,'Sale must consume inventory on day '+day);
+  assert.equal(st.demand,20,'Citizen demand must fall by exactly 10 on day '+day);
+  assert.equal(st.cash,500+40*day,'Net revenue must be conserved on day '+day);
+  if(day<365)context.nextDay();
+}
+console.log('PASS: 365-day active economy; no inventory duplication, daily production or revenue drift');
