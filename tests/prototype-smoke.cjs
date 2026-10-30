@@ -103,8 +103,13 @@ const beforeSecondLand=JSON.parse(storage.get('commenomy-demo-v2'));
 context.buyLand();
 assert.equal(JSON.parse(storage.get('commenomy-demo-v2')).lands,beforeSecondLand.lands+1);
 const afterLand=JSON.parse(storage.get('commenomy-demo-v2'));
-for(let i=0;i<5;i++)context.buyLand();
-assert.equal(JSON.parse(storage.get('commenomy-demo-v2')).lands,afterLand.lands,'Cannot buy land without funds');
+assert.equal(afterLand.cash,350,'First land purchase must debit 150');
+context.buyLand();
+context.buyLand();
+const exhausted=JSON.parse(storage.get('commenomy-demo-v2'));
+assert.equal(exhausted.lands,3,'Three initial state parcels can be bought');
+assert.equal(exhausted.cash,50,'Three parcels must cost 450 in total');
+unchanged(()=>context.buyLand(),'Fourth parcel must be rejected after state supply is exhausted');
 storage.remove('commenomy-demo-v2');
 context.start(); // Fresh funded company for the independent loan scenario.
 const beforeLoan=JSON.parse(storage.get('commenomy-demo-v2'));
