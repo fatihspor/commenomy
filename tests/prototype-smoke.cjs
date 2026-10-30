@@ -33,7 +33,7 @@ function node(id){if(!nodes.has(id))nodes.set(id,{value:'',textContent:'',innerH
 const storage=new Map();
 const context={console,Intl,Number,Math,JSON,String,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},document:{getElementById:node,querySelectorAll:()=>[],createElement:()=>({textContent:'',classList:{add(){},remove(){},toggle(){}}})},alert:()=>{},confirm:()=>true};
 vm.createContext(context);vm.runInContext(script[1],context);
-node('player').value='TestOyuncu';node('city').value='İstanbul';
+node('player').value='TestOyuncu';node('city').value='İstanbul';node('landType').value='industrial';
 context.start();
 assert.equal(JSON.parse(storage.get('commenomy-demo-v2')).cash,500);
 context.buildWarehouse();
