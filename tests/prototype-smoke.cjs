@@ -98,6 +98,7 @@ node('planIndustrial').value='1.5';
 context.saveLandPlan();
 assert.equal(snapshot(),beforeInvalidPlan,'Fractional government land supply rejected');
 node('planIndustrial').value='2';
+context.start(); // Isolate land purchase with sufficient initial funds.
 const beforeSecondLand=JSON.parse(storage.get('commenomy-demo-v2'));
 context.buyLand();
 assert.equal(JSON.parse(storage.get('commenomy-demo-v2')).lands,beforeSecondLand.lands+1);
