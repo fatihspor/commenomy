@@ -68,7 +68,7 @@ context.produce();
 assert.equal(JSON.parse(storage.get('commenomy-demo-v2')).stock,0,'Daily factory limit must block extra production');
 context.nextDay();context.produce();
 assert.equal(JSON.parse(storage.get('commenomy-demo-v2')).stock,10,'Daily factory capacity resets next day');
-assert.match(context.money(25),/USD/,'Currency formatter must show USD');
+assert.match(vm.runInContext('money(25)',context),/USD/,'Currency formatter must show USD');
 console.log('PASS: gameplay flow land -> warehouse -> production -> sale');
 console.log('PASS: synchronized Android assets, valid JavaScript, required screens and basic economy guards');
 
