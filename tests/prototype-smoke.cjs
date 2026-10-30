@@ -8,7 +8,7 @@ assert.equal(web,android,'Android APK must bundle the current web prototype');
 const script=web.match(/<script>([\s\S]*?)<\/script>/i);
 assert.ok(script,'Inline game logic must exist');
 new vm.Script(script[1],{filename:'index.html'});
-for(const id of ['setup','game','stats','company','market','bank','state','produce','sell','borrow','repay','nextDay']){
+for(const id of ['setup','game','stats','company','land','market','bank','state','produce','sell','borrow','repay','nextDay']){
  assert.match(web,new RegExp('id="'+id+'"'),'Missing game element: '+id);
 }
 assert.match(web,/if\(s\.stock\+10>s\.capacity\)/,'Warehouse limit guard missing');
