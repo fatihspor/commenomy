@@ -104,6 +104,8 @@ assert.equal(JSON.parse(storage.get('commenomy-demo-v2')).lands,beforeSecondLand
 const afterLand=JSON.parse(storage.get('commenomy-demo-v2'));
 for(let i=0;i<5;i++)context.buyLand();
 assert.equal(JSON.parse(storage.get('commenomy-demo-v2')).lands,afterLand.lands,'Cannot buy land without funds');
+storage.remove('commenomy-demo-v2');
+context.start(); // Fresh funded company for the independent loan scenario.
 const beforeLoan=JSON.parse(storage.get('commenomy-demo-v2'));
 context.borrow();
 const afterLoan=JSON.parse(storage.get('commenomy-demo-v2'));
