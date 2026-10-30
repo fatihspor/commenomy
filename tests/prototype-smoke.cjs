@@ -16,6 +16,8 @@ assert.match(web,/if\(qty>s\.stock\)/,'Inventory sale guard missing');
 assert.match(web,/if\(qty>s\.demand\)/,'Citizen demand guard missing');
 assert.match(web,/if\(price>12\)/,'Citizen price limit guard missing');
 assert.match(web,/id="land"/,'My Lands screen missing');
+assert.match(web,/gün kaldı/,'Construction countdown missing');
+assert.match(web,/USD/,'USD currency display missing');
 const nodes=new Map();
 function node(id){if(!nodes.has(id))nodes.set(id,{value:'',textContent:'',innerHTML:'',classList:{add(){},remove(){},toggle(){}},replaceChildren(){},onclick:null});return nodes.get(id)}
 const storage=new Map();
@@ -48,5 +50,6 @@ node('qty').value='10';node('price').value='8';context.sell();
 state=JSON.parse(storage.get('commenomy-demo-v2'));
 assert.equal(state.stock,0);
 assert.equal(state.cash,190);
+assert.match(context.money(25),/USD/,'Currency formatter must show USD');
 console.log('PASS: gameplay flow land -> warehouse -> production -> sale');
 console.log('PASS: synchronized Android assets, valid JavaScript, required screens and basic economy guards');
