@@ -29,7 +29,7 @@ assert.match(web,/warehouseWages=s\.warehouseSizes\.reduce/,'Capacity-scaled war
 assert.match(web,/id="buildFactory"/,'Factory construction button missing');
 assert.match(web,/s\.dailyProduced\+10>s\.factoryCapacity/,'Daily production limit missing');
 const nodes=new Map();
-function node(id){if(!nodes.has(id))nodes.set(id,{value:'',textContent:'',innerHTML:'',classList:{add(){},remove(){},toggle(){}},replaceChildren(){},onclick:null});return nodes.get(id)}
+function node(id){if(!nodes.has(id)){let value='';nodes.set(id,{get value(){return value},set value(v){value=String(v)},textContent:'',innerHTML:'',classList:{add(){},remove(){},toggle(){}},replaceChildren(){},onclick:null})}return nodes.get(id)}
 const storage=new Map();
 const context={console,Intl,Number,Math,JSON,String,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},document:{getElementById:node,querySelectorAll:()=>[],createElement:()=>({textContent:'',classList:{add(){},remove(){},toggle(){}}})},alert:()=>{},confirm:()=>true};
 vm.createContext(context);vm.runInContext(script[1],context);
