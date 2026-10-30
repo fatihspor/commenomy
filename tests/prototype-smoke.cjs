@@ -31,7 +31,7 @@ assert.match(web,/s\.dailyProduced\+10>s\.factoryCapacity/,'Daily production lim
 const nodes=new Map();
 function node(id){if(!nodes.has(id))nodes.set(id,{value:'',textContent:'',innerHTML:'',classList:{add(){},remove(){},toggle(){}},replaceChildren(){},onclick:null});return nodes.get(id)}
 const storage=new Map();
-const context={console,Intl,Number,Math,JSON,String,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},document:{getElementById:node,querySelectorAll:()=>[]},alert:()=>{},confirm:()=>true};
+const context={console,Intl,Number,Math,JSON,String,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},document:{getElementById:node,querySelectorAll:()=>[],createElement:()=>({textContent:'',classList:{add(){},remove(){},toggle(){}}})},alert:()=>{},confirm:()=>true};
 vm.createContext(context);vm.runInContext(script[1],context);
 node('player').value='TestOyuncu';node('city').value='İstanbul';
 context.start();
