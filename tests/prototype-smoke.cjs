@@ -16,6 +16,8 @@ assert.match(web,/if\(qty>s\.stock\)/,'Inventory sale guard missing');
 assert.match(web,/if\(qty>s\.demand\)/,'Citizen demand guard missing');
 assert.match(web,/if\(price>12\)/,'Citizen price limit guard missing');
 assert.match(web,/id="land"/,'My Lands screen missing');
+assert.match(web,/s\.lands>=3/,'Local land supply limit missing');
+assert.match(web,/s\.cash<0/,'Negative balance warning missing');
 assert.match(web,/gün kaldı/,'Construction countdown missing');
 assert.match(web,/USD/,'USD currency display missing');
 assert.match(web,/factoryWages=s\.factorySizes\.reduce/,'Capacity-scaled factory wages missing');
