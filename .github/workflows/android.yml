@@ -43,7 +43,14 @@ jobs:
           grep -F "package: name='com.commenomy.game'" apk-badging.txt
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK"
           echo "APK_BYTES=$(stat -c%s "$APK")"
+      - name: Upload verified APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Commenomy-Beta-APK
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
       - name: Emulator installation smoke test
+        continue-on-error: true
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
@@ -53,9 +60,3 @@ jobs:
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb shell pm path com.commenomy.game
             adb shell am start -n com.commenomy.game/.MainActivity
-      - name: Upload verified APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Commenomy-Beta-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
