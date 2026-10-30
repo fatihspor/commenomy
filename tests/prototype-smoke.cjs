@@ -15,7 +15,6 @@ assert.match(web,/if\(s\.stock\+10>s\.capacity\)/,'Warehouse limit guard missing
 assert.match(web,/if\(qty>s\.stock\)/,'Inventory sale guard missing');
 assert.match(web,/if\(qty>s\.demand\)/,'Citizen demand guard missing');
 assert.match(web,/if\(price>12\)/,'Citizen price limit guard missing');
-assert.match(web,/if\\(s\\.lands<=s\\.warehouses\\)/,'Warehouse construction must require unused land');
 assert.match(web,/id="land"/,'My Lands screen missing');
 const nodes=new Map();
 function node(id){if(!nodes.has(id))nodes.set(id,{value:'',textContent:'',innerHTML:'',classList:{add(){},remove(){},toggle(){}},replaceChildren(){},onclick:null});return nodes.get(id)}
@@ -31,11 +30,16 @@ context.buyLand();
 assert.equal(JSON.parse(storage.get('commenomy-demo-v2')).lands,1);
 context.buildWarehouse();
 let state=JSON.parse(storage.get('commenomy-demo-v2'));
-assert.equal(state.capacity,30);
-assert.equal(state.warehouses,1);
+assert.equal(state.capacity,10);
+assert.equal(state.warehouses,0);
+assert.equal(state.construction.length,1);
 assert.equal(state.cash,150);
 context.buildWarehouse();
-assert.equal(JSON.parse(storage.get('commenomy-demo-v2')).capacity,30,'Same land must not support a second warehouse');
+assert.equal(JSON.parse(storage.get('commenomy-demo-v2')).construction.length,1,'Same land must not support a second construction');
+context.nextDay();
+assert.equal(JSON.parse(storage.get('commenomy-demo-v2')).capacity,10,'Construction must not finish early');
+context.nextDay();
+assert.equal(JSON.parse(storage.get('commenomy-demo-v2')).capacity,30,'Construction completes after two days');
 context.produce();
 assert.equal(JSON.parse(storage.get('commenomy-demo-v2')).stock,10);
 node('qty').value='10';node('price').value='8';context.sell();
