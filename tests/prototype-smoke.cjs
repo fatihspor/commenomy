@@ -110,7 +110,7 @@ const exhausted=JSON.parse(storage.get('commenomy-demo-v2'));
 assert.equal(exhausted.lands,3,'Three initial state parcels can be bought');
 assert.equal(exhausted.cash,50,'Three parcels must cost 450 in total');
 unchanged(()=>context.buyLand(),'Fourth parcel must be rejected after state supply is exhausted');
-storage.remove('commenomy-demo-v2');
+storage.delete('commenomy-demo-v2');
 context.start(); // Fresh funded company for the independent loan scenario.
 const beforeLoan=JSON.parse(storage.get('commenomy-demo-v2'));
 context.borrow();
