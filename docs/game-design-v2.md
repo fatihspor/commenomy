@@ -152,6 +152,7 @@ Vatandaş alışverişi mağazadan stok azaltıp geliri **şirket kasasına** ya
 
 - Oyuncu tedarikçiden satın alma emri verir; teslimat süresince sipariş “hazırlanıyor/yolda” görünür.
 - Oyuncu stoktan satış emri, toptan satış teklifi veya kamu ihalesi teklifi verebilir.
+- Kamu mal alım ihalesinde ilan edilen ürün ve miktar sabittir; oyuncu yalnızca birim TL fiyatı verir. Teklif anında tam ihale miktarı rezerve edilir; stok yetmiyorsa teklif verilemez.
 - Oyuncular arası açık pazar daha sonra gelir; ilk sürümde simülasyon işletmeleriyle çalışır.
 - İlanı veya teklifleri sonuçlanmamış pazar özelliği kapalıysa, ölü bağlantı ve gereksiz açıklama gösterilmez.
 - Aynı stok iki farklı satışta rezerve edilirse çift satışa izin verilmez.
@@ -220,7 +221,23 @@ Devlet; imar ve arazi arzını, sanayi bölgelerini, ruhsatları, vergi ve faiz 
 - Tek oyunculu sürümde NPC teklifleri şirket finansı ve arazi ihtiyacıyla tutarlı, tekrar üretilebilir biçimde hesaplanır.
 
 ### 10.2 Kamu alımı ve yapım ihaleleri
-Oyuncu uygunluk şartlarını sağlayınca kamu yapım ve mal alım ihalelerine teklif verir. İhale dokümanında miktar, kalite, termin, teslim yeri, bütçe, teminat ve değerlendirme ölçütü yer alır. Kazanan yalnızca en düşük fiyata göre seçilmek zorunda değildir; maliyet, kalite ve teslim kabiliyeti açık ağırlıklarla puanlanır. Sözleşme kabul edilince stok/üretim kapasitesi rezerve edilir; teslim ve ödeme kilometre taşlarına göre kaydedilir. Başarısız teslimin cezası teklif öncesinde gösterilir.
+
+Her mal alım ihalesi belirli bir **ürün/hizmet** ve **tam sipariş miktarı** için açılır. İlan kartında ürün adı, kalite/standart, toplam adet veya ölçü birimi (ör. kg, ton, adet), teslim yeri, son teklif zamanı, teslim son tarihi, devletin ayırdığı toplam bütçe, kabul şartları ve değerlendirme ölçütü görünür. Oyuncu teklif vermeden önce ihalenin ne istediğini ve bu miktarın kendi teslim edilebilir stokuyla karşılanıp karşılanmadığını görür.
+
+**Teklif ve stok rezervasyonu:**
+1. Oyuncu yalnızca birim fiyatını (TL/ürün birimi) girer. Sistem toplam teklif bedelini otomatik olarak **birim fiyat × ihale miktarı** şeklinde hesaplar ve teklif onayından önce gösterir. Adet/miktar oyuncunun değiştireceği bir alan değildir; ihalenin tam miktarı için teklif verilir.
+2. Teklif gönderilirken sistem, aynı ürün ve kalite için teslimata uygun, bozulmamış ve başka işlem için ayrılmamış stok miktarını sunucu tarafında kontrol eder. Uygun serbest stok ihale miktarından azsa teklif gönderilmez; gereken, uygun ve serbest miktarlar kullanıcıya açıklanır.
+3. Teklif kabul edilip kaydedildiği anda, ihale miktarının tamamı tek bir atomik işlemle **ihale için rezerve** edilir. Son anda stok azaldıysa teklif ve rezervasyon birlikte başarısız olur. İki eşzamanlı işlem aynı stoğu rezerve edemez.
+4. Rezerve miktar mağazada satılamaz; başka ihaleye teklif edilemez; tedarik siparişine, üretim tüketimine, stok transferine, teminat hesabına veya başka bir satışa konu edilemez. Şirket ekranında toplam stoktan ayrı olarak “serbest / ihalede rezerve” gösterilir.
+5. Teklif, ihale sonucu açıklanana kadar kesin ve bağlayıcıdır; aynı teklifin yinelenen gönderimi yeni rezerv oluşturmaz. NPC rakipler de kendi gerçek stok ve bütçe kapasiteleri içinde teklif verir.
+
+**Sonuç ve teslimat:**
+- Oyuncu ihaleyi kaybederse rezerve miktar sonuç kesinleştiği anda serbest stoğa döner. İhale iptal edilir, bütçesi kaldırılır veya sonuçlandırılamazsa da stok serbest bırakılır; olay kaydı oluşur.
+- Oyuncu kazanırsa rezerv, kamu sözleşmesine bağlanır ve teslim edilecek stok olur. Oyuncu ihalede yazan süre içinde tam miktarı belirtilen teslim noktasına sevk eder. Ürün kabul edilince sözleşme tamamlanır ve ödeme şirket kasasına geçer: kabul edilen miktar × teklif edilen birim fiyat, ilan edilen vergi/kesintiler varsa dökümüyle birlikte. Teslim ve kabulden önce tutar alacak olarak gösterilebilir, harcanabilir kasa gibi gösterilemez.
+- Eksik miktar, geç teslim, kalite reddi ve sözleşme cezası tekliften önce açıkça belirtilir. Kabul edilmeyen ürün için ödeme yapılmaz; uygulanacak düzeltme/ceza şartları sözleşmede görünür. İhale miktarı bölünerek kısmi teklif verilemez.
+- Raf ömrü olan ürünler, son kullanma tarihi teslim ve kabul için yeterli süre bırakmıyorsa uygun stok sayılmaz. Farklı depolardaki uygun stok, ihale ilanının teslim şartları ve sevkiyat kabiliyeti karşılanıyorsa birlikte rezerve edilebilir.
+
+Oyuncu kamu yapım ve mal alım ihalelerine uygunluk şartlarını sağlayınca katılır. Kazanan yalnızca en düşük fiyatla seçilmek zorunda değildir; fiyat, kalite ve teslim kabiliyeti açık değerlendirme ağırlıklarıyla puanlanır. Sözleşme, stok/üretim kapasitesi, teslim kilometre taşları ve ödemeleri izlenebilir biçimde kaydeder.
 
 ### 10.3 Seçilmiş hükümet ve politika
 
@@ -270,7 +287,7 @@ Ekran sınırında belirgin üst özet ile içerik bölümü görsel olarak ayr�
 - **Tarla:** ürün, ekim ve hasat takvimi, girdi, verim ve ürün partileri.
 - **Pazar:** ürün fiyat/arz/talep, üretici ve siparişler; yalnızca çalışan pazar işlevleri.
 - **Şehir/harita:** cadde, sanayi bölgesi, parsel, mesafe ve büyüme.
-- **Devlet:** arsa/ruhsat ihalesi, kamu işi, bütçe, politika ve (açık olduğunda) seçim.
+- **Devlet:** arsa/ruhsat ihalesi, ürün alım ve yapım ihaleleri, bütçe, politika ve (açık olduğunda) seçim.
 - **Banka:** vadeli mevduat, kredi, borç, taksit ve faiz dökümü.
 
 Ekran başlığı altında bir cümlelik bağlamsal açıklama yeterlidir. Kullanım dışı sistemi açıklayan uzun metin, tekrar eden yönerge veya boş çalışan buton bırakılmaz.
@@ -284,7 +301,7 @@ Her işlem başarısında ekranda doğrulama ve işlem kaydı, başarısızlığ
 ## 13. Teknik ve ekonomi bütünlüğü ilkeleri
 
 - Sunucu saati ve sunucu yetkili ekonomi; yerel cihaz saati, hızlandırma veya değiştirilmiş APK ekonomik kaynak oluşturamaz.
-- Para, ürün partisi, ihale teminatı ve sipariş rezervleri aynı işlem günlüğünde atomik tutulur.
+- Para, ürün partisi, ihale teminatı, kamu ihalesi için rezerve edilen ürün miktarı ve sipariş rezervleri aynı işlem günlüğünde atomik tutulur.
 - Önemli istekler idempotenttir; yeniden gönderme aynı alım/satım/ödeme işlemini iki kere yapmaz.
 - Oyuncu yalnızca kendi şirket verisini değiştirebilir. Simülasyon şirketlerini ve devlet kayıtlarını istemci doğrudan düzenleyemez.
 - Yetki denetimleri yalnızca arayüz gizlemesine dayanmaz; sunucuda uygulanır.
@@ -300,6 +317,7 @@ Her işlem başarısında ekranda doğrulama ve işlem kaydı, başarısızlığ
 - Oyuncu şirketi, başlangıç sermayesi, mağaza, ürün listesi ve şirket kasası.
 - Tedarikçi listesi, boş miktar alanı, satıcı/ürün bazında sipariş ve sipariş takibi.
 - Stok kapasitesi, parti hareketleri, vatandaş satışı, ürün fiyatı ve gelir/gider fişi.
+- Sabit ürün ve miktar içeren kamu alım ihalesi; birim fiyat teklifi, yeterli stok kontrolü ve teklif anında tam miktar rezervasyonu.
 - Basit ama aktif sanal rakipler ve vatandaş talebi.
 - Yerel testte dünyada tek insan oyuncu.
 
@@ -344,6 +362,11 @@ Bir sistem “hazır” sayılmadan aşağıdaki ilgili koşullar karşılanır:
 - “Ürün Al” tedarikçi listesini açar.
 - Her üreticinin kartı kendi ürün/stok/fiyatını ve kendine bağlı boş miktar alanı ile sipariş düğmesini gösterir.
 - Miktar girilmeden sipariş verilemez; girilince stok, depo yeri, ara toplam, nakliye ve toplam doğru hesaplanır.
+- Kamu ihale kartı ürünün tam ihale miktarını ve birimini gösterir; teklif alanı birim fiyatı **TL** olarak ister ve toplam sözleşme teklifini otomatik hesaplar.
+- Kamu ihalesi teklifi, uygun serbest stok tam miktarı karşılamıyorsa reddedilir; teklif gönderildiği anda tam miktar rezerv edilir.
+- Bekleyen teklifin rezervi başka satış, sipariş, üretim veya ihaleye kullanılamaz; kaybedilen/iptal edilen ihalede serbest bırakılır.
+- Kazanan teklifin rezervi teslimat stokuna dönüşür; kamu malı teslim edilip kabul edildiğinde sözleşme bedeli şirket kasasına geçer.
+- Bir ürün partisinin eşzamanlı satış ve ihale teklifinde iki kez rezerve edilmesi mümkün olmaz.
 - Eş zamanlı siparişler nakit ve kapasiteyi aşamaz.
 - Başarılı NPC satışında mağaza stoku doğru azalır, şirket kasası doğru artar ve rapor oluşur.
 - “30 / 50 kg” ifadesi eldeki stok ve kapasiteyi doğru anlatır.
@@ -356,7 +379,11 @@ Bir sistem “hazır” sayılmadan aşağıdaki ilgili koşullar karşılanır:
 ### Yer, ihaleler ve dönüşüm
 - Cadde 1'in müşteri trafiği ve kirası diğer caddelerden dengeleme parametreleriyle farklıdır.
 - Sanayi bölgesi şehir merkezinden ayrı görünür ve nakliye etkisi hesaplanır.
-- Teklif kaybedilince ayrılan para iade edilir; kazanılınca ödeme ve parsel sahipliği tek seferde kaydedilir.
+- Arsa ihalesinde teklif kaybedilince ayrılan para iade edilir; kazanılınca ödeme ve parsel sahipliği tek seferde kaydedilir.
+- Kamu ürün ihalesi ilanında ürün, tam miktar ve birim açıkça görünür; teklif alanı birim fiyatı TL olarak ister ve toplamı miktarla çarparak gösterir.
+- Serbest, uygun stok ihale miktarından azsa teklif reddedilir. Teklif kaydedildiği an stok miktarının tamamı atomik olarak kilitlenir; başka satış veya ihalede kullanılamaz.
+- Kamu ihalesi kaybedilince veya iptal edilince stok serbest kalır. Kazanılınca ürün teslimat için tutulur; kabulden sonra sözleşme bedeli şirket kasasına ödenir.
+- Aynı partiyi eşzamanlı iki işlem rezerve edemez; stok kontrolü sunucu tarafında ve atomik yapılır.
 - Dönüşüm 2 oyun gününde tamamlanır; varlık bu aralıkta kullanılamaz.
 
 ### Tarla, ocak, nüfus ve inşaat
