@@ -64,9 +64,12 @@ jobs:
             test "$(stat -c%s commenomy-launch.png)" -gt 1000
             file commenomy-launch.png | grep -F "PNG image data"
             adb shell dumpsys activity activities | grep -E 'mResumedActivity|topResumedActivity|ResumedActivity' | grep -F 'com.commenomy.game'
-            if adb logcat -d -v brief | grep -E 'FATAL EXCEPTION|Process: com\.commenomy\.game|AndroidRuntime.*com\.commenomy\.game' | grep -Eq 'Process: com\.commenomy\.game|AndroidRuntime.*com\.commenomy\.game'; then
-              echo 'App crash detected'; exit 1
+            adb logcat -d -v brief > commenomy-logcat.txt
+            if grep -F 'Process: com.commenomy.game' commenomy-logcat.txt; then
+              echo 'App crash detected'
+              exit 1
             fi
+
       - name: Upload emulator-tested APK
         uses: actions/upload-artifact@v4
         with:
