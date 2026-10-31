@@ -9,7 +9,7 @@ function el(id){if(!nodes.has(id)){let v='';nodes.set(id,{get value(){return v},
 const c={console,Intl,Number,Math,JSON,String,localStorage:{getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v),removeItem:k=>store.delete(k)},document:{getElementById:el,querySelectorAll:()=>[],createElement:()=>({textContent:'',className:'',setAttribute(){},append(){}})},alert:m=>alerts.push(m),confirm:()=>true};vm.createContext(c);vm.runInContext(js,c);
 const state=()=>JSON.parse(store.get('commenomy-demo-v2'));
 el('player').value='Deneme';el('city').value='İstanbul';el('street').value='1';c.start();
-assert.equal(state().cash,500);
+assert.equal(state().cash,500);c.approveIndustrialZone();assert.equal(state().industrialDistricts.length,1);assert.equal(state().industrialDistricts[0].distanceKm,6);assert.deepEqual(state().governmentLandPlans.map(p=>[p.type,p.areaM2,p.openDay]),[['factory',1000,2],['factory',1000,6],['warehouse',500,10],['warehouse',500,14]]);assert.equal(vm.runInContext('shopCapacity(1)',c),20,'A 20 m² city shop provides 20 units of retail storage');
 const quotes=vm.runInContext('constructionOffers()',c);assert.ok(quotes.length>=2);assert.ok(quotes.every(q=>q.stock>=100));assert.ok(quotes[0].total<=quotes[1].total,'Construction order must choose lowest landed cost');
 assert.equal(vm.runInContext('streetVacancy(1)',c),0,'Prestige street initially full');
 el('shopNameInput').value='Deneme Market';c.rentShop();assert.equal(state().shopRented,false,'Cannot rent full street');
