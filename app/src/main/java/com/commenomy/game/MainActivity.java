@@ -18,5 +18,5 @@ public class MainActivity extends Activity {
  web.loadUrl("file:///android_asset/index.html");
  }
  @Override protected void onDestroy(){ if(web!=null){ web.destroy(); web=null; } super.onDestroy(); }
- @Override public void onBackPressed(){if(web.canGoBack())web.goBack();else super.onBackPressed();}
+ @Override public void onBackPressed(){if(web!=null && web.canGoBack())web.goBack();else super.onBackPressed();}
 }
