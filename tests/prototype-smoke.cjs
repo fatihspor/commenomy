@@ -14,9 +14,11 @@ const quotes=vm.runInContext('constructionOffers()',c);assert.ok(quotes.length>=
 assert.equal(vm.runInContext('streetVacancy(1)',c),0,'Prestige street initially full');
 c.rentShop();assert.equal(state().shopRented,false,'Cannot rent full street');
 el('street').value='5';c.rentShop();assert.equal(state().shopRented,true);assert.equal(state().cash,475);assert.equal(state().street,5);
+el('producerQty').value='10';el('producerSupplier').value='marmara';
 const cashBeforePurchase=state().cash;c.produce();assert.equal(state().stock,10);assert.ok(state().cash<cashBeforePurchase,'Producer order including delivery must reduce company cash');assert.equal(state().shopStock,0);el('transferQty').value='10';c.transferToShop();assert.equal(state().stock,0);assert.equal(state().shopStock,10);
 el('price').value='8';el('qty').value='10';const before=state().cash;c.sell();assert.ok(state().cash>=before);assert.ok(state().shopStock>=0&&state().shopStock<=10);
+el('producerQty').value='10';el('producerSupplier').value='marmara';c.produce();el('transferQty').value='10';c.transferToShop();const salesBeforeAuto=state().totalSalesUnits;c.nextDay();assert.ok(state().totalSalesUnits>salesBeforeAuto,'Customers must buy automatically as game days advance');
 assert.ok(vm.runInContext('streetVacancy(5)',c)>=0);
 for(let i=0;i<28;i++){c.nextDay();assert.ok(Number.isFinite(state().cash));assert.ok(state().stock>=0);assert.ok(state().lands>=0)}
 assert.ok(state().shopNextRent>=8);
-console.log('PASS: JavaScript syntax, synchronized Android assets, shop vacancy, street rental, producer purchase, competition sales, 28-day simulation');
+console.log('PASS: JavaScript syntax, synchronized Android assets, shop vacancy, street rental, producer purchase, automatic retail sales, competition sales, 28-day simulation');
