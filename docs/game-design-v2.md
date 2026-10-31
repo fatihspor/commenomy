@@ -142,7 +142,7 @@ Satıcı kartı altındaki sipariş alanında:
 
 ### 6.2 Mağaza ve satış
 
-Mağaza ekranı kısa ve işletme odaklıdır: günlük satış, gelir, gider, raf/depo kapasitesi, ürünler, fiyatlar ve siparişler. Her ürün kartında ürün adına yakın yerde **ortalama birim alış maliyeti** ile **satış fiyatı** ayrı, aynı birim üzerinden gösterilir. Ortalama maliyet; alış bedeli ve nakliye dahil gelen ürün partilerinden ağırlıklı ortalama olarak hesaplanır. Henüz alış geçmişi olmayan eski kayıt veya ürünlerde değer tahmini olarak işaretlenir. Maliyet ile satış fiyatı arasındaki fark, tahmini birim marjı anlamayı sağlar. Her ürün satırında oyuncunun elindeki miktar ile toplam kapasite birlikte görünür: **“30 / 50 kg” = elde 30 kg, kapasite 50 kg**. Bu bilgi ürün başlığının hemen üstünde veya altında, belirgin biçimde görünür. Toplam mağaza doluluğu da ürün listesinin yakınında gösterilir.
+Mağazada satış fiyatını oyuncu belirler. Cadde trafiği, fiyat, rakip fiyat/stokları ve talep simülasyonu anlık değerlendirerek her ürün için günlük tahmini satış adedini ve yaklaşık birim satış aralığını gösterir. Tahmin, fiyat veya konum değişince yenilenir. Gerçek satış zaman içinde gerçekleşir: örneğin tahmin 8 kg/gün ise yaklaşık her 3 saatte 1 kg satılır. Her tam satışta stoktan ürün düşer, satış bedeli aynı anda şirket kasasına eklenir. Ürün kalmazsa satış saati birikmez; yeni stok gelince satış sayacı yeniden çalışır. Satış fiyatını oyuncu belirler; fiyat, yer ve talep yalnızca satış tahminini ve hızını etkiler.\n\nMağaza ekranı kısa ve işletme odaklıdır: günlük satış, gelir, gider, raf/depo kapasitesi, ürünler, fiyatlar ve siparişler. Her ürün kartında ürün adına yakın yerde **ortalama birim alış maliyeti** ile **satış fiyatı** ayrı, aynı birim üzerinden gösterilir. Ortalama maliyet; alış bedeli ve nakliye dahil gelen ürün partilerinden ağırlıklı ortalama olarak hesaplanır. Henüz alış geçmişi olmayan eski kayıt veya ürünlerde değer tahmini olarak işaretlenir. Maliyet ile satış fiyatı arasındaki fark, tahmini birim marjı anlamayı sağlar. Her ürün satırında oyuncunun elindeki miktar ile toplam kapasite birlikte görünür: **“30 / 50 kg” = elde 30 kg, kapasite 50 kg**. Bu bilgi ürün başlığının hemen üstünde veya altında, belirgin biçimde görünür. Toplam mağaza doluluğu da ürün listesinin yakınında gösterilir.
 
 Oyuncu ürünün satış fiyatını belirler; fiyat önerisi rakipler, ürün maliyeti, cadde trafiği, kalite ve şehir talebiyle karşılaştırılır. Oyuncunun fiyatı ve önerilen fiyat yan yana, tahmini satış hızı ve brüt/net marjla gösterilir. Fiyat rakiplerden yüksekse satışın yavaşlaması açıklanır; satış garantisi verilmez.
 
@@ -370,6 +370,9 @@ Bir sistem “hazır” sayılmadan aşağıdaki ilgili koşullar karşılanır:
 - Eş zamanlı siparişler nakit ve kapasiteyi aşamaz.
 - Başarılı NPC satışında mağaza stoku doğru azalır, şirket kasası doğru artar ve rapor oluşur.
 - Her ürün kartı aynı ölçü biriminde ortalama alış maliyeti ile satış fiyatını ayrı gösterir; gerçek alışlarda nakliye dahil ağırlıklı ortalama güncellenir, geçmişi olmayan ürün maliyeti tahmini olarak işaretlenir.
+- Tahmini günlük satış adedi, oyuncu satış fiyatı değişince anlık yenilenir ve cadde/rakip/talep modelini kullanır.
+- Stok varken öngörülen zaman dolunca ürün miktarı azalır ve satış bedeli şirket kasasına eklenir; uygulama arka plandayken geçen süre tekrar açılışta uzlaştırılır.
+- Günlük 03.00 kapanışı, gün boyunca zaten kaydedilmiş satışları yeniden satmaz.
 - “30 / 50 kg” ifadesi eldeki stok ve kapasiteyi doğru anlatır.
 
 ### Üretim ve stok
