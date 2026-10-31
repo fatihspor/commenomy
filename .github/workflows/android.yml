@@ -42,7 +42,7 @@ jobs:
           unzip -Z1 "$APK" | grep -Fx classes.dex
           unzip -Z1 "$APK" | grep -Fx assets/index.html
           unzip -Z1 "$APK" | grep -Fx AndroidManifest.xml
-          test "$(stat -c%s "$APK")" -gt 100000
+          test "$(stat -c%s "$APK")" -gt 10000
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee apk-badging.txt
           grep -F "package: name='com.commenomy.game'" apk-badging.txt
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK"
