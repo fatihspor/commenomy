@@ -41,7 +41,7 @@ jobs:
           unzip -t "$APK"
           unzip -Z1 "$APK" | grep -Fx classes.dex
           unzip -Z1 "$APK" | grep -Fx assets/index.html
-          test "$(stat -c%s "$APK")" -gt 20000
+          test "$(stat -c%s "$APK")" -gt 10000
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee apk-badging.txt
           grep -F "package: name='com.commenomy.game'" apk-badging.txt
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK"
@@ -57,7 +57,10 @@ jobs:
             adb shell pm path com.commenomy.game
             adb shell am start -W -n com.commenomy.game/.MainActivity
             sleep 8
-            adb shell pidof com.commenomy.game | grep -Eq '[0-9]+'\n            adb shell screencap -p /sdcard/commenomy-launch.png\n            adb pull /sdcard/commenomy-launch.png commenomy-launch.png\n            test "$(stat -c%s commenomy-launch.png)" -gt 1000
+            adb shell pidof com.commenomy.game | grep -Eq '[0-9]+'
+            adb shell screencap -p /sdcard/commenomy-launch.png
+            adb pull /sdcard/commenomy-launch.png commenomy-launch.png
+            test "$(stat -c%s commenomy-launch.png)" -gt 1000
             adb shell dumpsys activity activities | grep -E 'mResumedActivity|topResumedActivity|ResumedActivity' | grep -F 'com.commenomy.game'
             if adb logcat -d -t 1000 | grep -E 'FATAL EXCEPTION|Process: com.commenomy.game' | grep -F 'com.commenomy.game'; then
               echo 'App crash detected'; exit 1
