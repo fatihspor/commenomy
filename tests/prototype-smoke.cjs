@@ -3,13 +3,14 @@ const html=fs.readFileSync('index.html','utf8');
 assert.equal(html,fs.readFileSync('app/src/main/assets/index.html','utf8'),'Android assets must match');
 const js=html.match(/<script>([\s\S]*?)<\/script>/i)?.[1];assert.ok(js);
 new vm.Script(js);
-for(const id of ['setup','game','company','market','land','bank','state','street','rentShop','competitionInfo','streetAvailability','salesForecast'])assert.ok(html.includes('id="'+id+'"'),id);
+for(const id of ['setup','game','company','market','land','bank','state','street','rentShop','competitionInfo','streetAvailability','salesForecast','constructionPurchaseInfo'])assert.ok(html.includes('id="'+id+'"'),id);
 const nodes=new Map(),store=new Map(),alerts=[];
 function el(id){if(!nodes.has(id)){let v='';nodes.set(id,{get value(){return v},set value(x){v=String(x)},disabled:false,textContent:'',innerHTML:'',classList:{add(){},remove(){},toggle(){}},replaceChildren(){}})}return nodes.get(id)}
 const c={console,Intl,Number,Math,JSON,String,localStorage:{getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v),removeItem:k=>store.delete(k)},document:{getElementById:el,querySelectorAll:()=>[],createElement:()=>({textContent:''})},alert:m=>alerts.push(m),confirm:()=>true};vm.createContext(c);vm.runInContext(js,c);
 const state=()=>JSON.parse(store.get('commenomy-demo-v2'));
 el('player').value='Deneme';el('city').value='İstanbul';el('street').value='1';c.start();
 assert.equal(state().cash,500);
+const quotes=vm.runInContext('constructionOffers()',c);assert.ok(quotes.length>=2);assert.ok(quotes.every(q=>q.stock>=100));assert.ok(quotes[0].total<=quotes[1].total,'Construction order must choose lowest landed cost');
 assert.equal(vm.runInContext('streetVacancy(1)',c),0,'Prestige street initially full');
 c.rentShop();assert.equal(state().shopRented,false,'Cannot rent full street');
 el('street').value='5';c.rentShop();assert.equal(state().shopRented,true);assert.equal(state().cash,475);assert.equal(state().street,5);
