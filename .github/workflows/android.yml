@@ -56,13 +56,15 @@ jobs:
           script: |
             adb install -r -t app/build/outputs/apk/debug/app-debug.apk
             adb shell pm path com.commenomy.game
+            adb logcat -c
             adb shell am start -W -n com.commenomy.game/.MainActivity
             sleep 8
             adb shell pidof com.commenomy.game | grep -Eq '[0-9]+'
             adb exec-out screencap -p > commenomy-launch.png
             test "$(stat -c%s commenomy-launch.png)" -gt 1000
+            file commenomy-launch.png | grep -F "PNG image data"
             adb shell dumpsys activity activities | grep -E 'mResumedActivity|topResumedActivity|ResumedActivity' | grep -F 'com.commenomy.game'
-            if adb logcat -d -t 1000 | grep -E 'FATAL EXCEPTION|Process: com.commenomy.game' | grep -F 'com.commenomy.game'; then
+            if adb logcat -d -v brief | grep -E 'FATAL EXCEPTION|Process: com\.commenomy\.game|AndroidRuntime.*com\.commenomy\.game' | grep -Eq 'Process: com\.commenomy\.game|AndroidRuntime.*com\.commenomy\.game'; then
               echo 'App crash detected'; exit 1
             fi
       - name: Upload emulator-tested APK
