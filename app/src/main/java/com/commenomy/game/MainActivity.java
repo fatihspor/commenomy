@@ -15,7 +15,8 @@ public class MainActivity extends Activity {
  web.getSettings().setJavaScriptEnabled(true);
  web.getSettings().setDomStorageEnabled(true);
  setContentView(web);
- web.loadUrl("file:///android_asset/index.html");
+ if (BuildConfig.DEBUG) web.loadUrl("file:///android_asset/index.html?testDayMinutes=60");
+  else web.loadUrl("file:///android_asset/index.html");
  }
  @Override protected void onDestroy(){ if(web!=null){ web.destroy(); web=null; } super.onDestroy(); }
  @Override public void onBackPressed(){if(web!=null && web.canGoBack())web.goBack();else super.onBackPressed();}
