@@ -50,13 +50,15 @@ Yeni arazi arzını devlet yönetir. Arzın tükenmesi kalıcı bir kilit yaratm
 
 ### 2.3 Gerçek zaman ve günlük kapanış
 
-Bir oyun günü 03.00–02.59 Türkiye saati arasındadır. Her gün saat 03.00'te sunucu:
+Normal oyunda bir oyun günü 03.00–02.59 Türkiye saati arasındadır. Her gün saat 03.00'te sunucu:
 1. Önceki güne ait üretim, satış, sevkiyat ve siparişleri kesinleştirir.
 2. Ücret, kira, enerji, kredi ve mevduat faizlerini muhasebeleştirir.
 3. Vatandaşların gelir, tüketim, konut ihtiyacı ve işgücü güncellemesini yapar.
 4. Ürün stoklarının raf ömrünü ve bozulmayı işler.
 5. Devlet bütçesi, ihaleler, pazar fiyatları ve haber akışını günceller.
 6. Yeni günün üretim ve satış kapasitelerini açar.
+
+**Hızlandırılmış test APK'sı:** Yalnızca debug/test derlemesi `testDayMinutes=60` ayarıyla 1 gerçek saati 1 oyun günü olarak kullanır; maaş, kira, üretim, satış, hasat ve diğer günlük akışlar aynı 24× hızla işler. Ekranda deneme modu açıkça belirtilir. Release/normal oyun 03.00 Türkiye saati kapanışını ve 24 saatlik günü korur. Saat modu değiştirildiğinde eski zaman damgası yeni moda taşınmaz; test kurulumu oyun gününü o anki saate göre başlatır.
 
 Kesin sıralama ve işlemler tek bir dönem kaydına bağlanır; tekrar çalıştırma aynı ödemeyi iki kez yapmaz. Oyuncu çevrimdışıyken de dünya ilerler. Telefonu açık tutmak veya ekrana dokunmak gerekmez. Oyuncu son girişten bu yana olanları anlaşılır faaliyet dökümünde görür. İlk sürümün test ayarında bir düğme ile günü ilerletmek gerekiyorsa bu yalnızca test modunda bulunur; normal oyunda elle gün atlatma yoktur.
 
