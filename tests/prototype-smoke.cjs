@@ -5,15 +5,15 @@ const js=html.match(/<script>([\s\S]*?)<\/script>/i)?.[1];assert.ok(js);
 new vm.Script(js);
 for(const id of ['setup','game','company','market','land','bank','state','street','rentShop','competitionInfo','streetAvailability','salesForecast','constructionPurchaseInfo'])assert.ok(html.includes('id="'+id+'"'),id);
 const nodes=new Map(),store=new Map(),alerts=[];
-function el(id){if(!nodes.has(id)){let v='';nodes.set(id,{get value(){return v},set value(x){v=String(x)},disabled:false,textContent:'',innerHTML:'',classList:{add(){},remove(){},toggle(){}},replaceChildren(){}})}return nodes.get(id)}
-const c={console,Intl,Number,Math,JSON,String,localStorage:{getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v),removeItem:k=>store.delete(k)},document:{getElementById:el,querySelectorAll:()=>[],createElement:()=>({textContent:''})},alert:m=>alerts.push(m),confirm:()=>true};vm.createContext(c);vm.runInContext(js,c);
+function el(id){if(!nodes.has(id)){let v='';nodes.set(id,{get value(){return v},set value(x){v=String(x)},disabled:false,textContent:'',innerHTML:'',classList:{add(){},remove(){},toggle(){}},replaceChildren(){},appendChild(){}})}return nodes.get(id)}
+const c={console,Intl,Number,Math,JSON,String,localStorage:{getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v),removeItem:k=>store.delete(k)},document:{getElementById:el,querySelectorAll:()=>[],createElement:()=>({textContent:'',className:'',setAttribute(){},append(){}})},alert:m=>alerts.push(m),confirm:()=>true};vm.createContext(c);vm.runInContext(js,c);
 const state=()=>JSON.parse(store.get('commenomy-demo-v2'));
 el('player').value='Deneme';el('city').value='İstanbul';el('street').value='1';c.start();
 assert.equal(state().cash,500);
 const quotes=vm.runInContext('constructionOffers()',c);assert.ok(quotes.length>=2);assert.ok(quotes.every(q=>q.stock>=100));assert.ok(quotes[0].total<=quotes[1].total,'Construction order must choose lowest landed cost');
 assert.equal(vm.runInContext('streetVacancy(1)',c),0,'Prestige street initially full');
-c.rentShop();assert.equal(state().shopRented,false,'Cannot rent full street');
-el('street').value='5';c.rentShop();assert.equal(state().shopRented,true);assert.equal(state().cash,475);assert.equal(state().street,5);
+el('shopNameInput').value='Deneme Market';c.rentShop();assert.equal(state().shopRented,false,'Cannot rent full street');
+el('street').value='5';c.rentShop();assert.equal(state().shopRented,true);assert.equal(state().shopName,'Deneme Market');assert.equal(state().cash,475);assert.equal(state().street,5);
 el('producerQty').value='10';el('producerSupplier').value='marmara';
 const cashBeforePurchase=state().cash;c.produce();assert.equal(state().stock,10);assert.ok(state().cash<cashBeforePurchase,'Producer order including delivery must reduce company cash');assert.equal(state().shopStock,0);el('transferQty').value='10';c.transferToShop();assert.equal(state().stock,0);assert.equal(state().shopStock,10);
 el('price').value='8';el('qty').value='10';const before=state().cash;c.sell();assert.ok(state().cash>=before);assert.ok(state().shopStock>=0&&state().shopStock<=10);
