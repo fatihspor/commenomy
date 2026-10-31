@@ -50,7 +50,15 @@ jobs:
           grep -F "package: name='com.commenomy.game'" apk-badging.txt
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK"
           echo "APK_BYTES=$(stat -c%s "$APK")"
+      - name: Upload validated APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Commenomy-Beta-APK
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
       - name: Emulator installation smoke test
+        timeout-minutes: 8
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
@@ -71,12 +79,6 @@ jobs:
             adb logcat -d -v brief > commenomy-logcat.txt
             ! grep -Fq 'Process: com.commenomy.game' commenomy-logcat.txt
 
-      - name: Upload emulator-tested APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Commenomy-Beta-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
       - name: Upload emulator launch screenshot
         if: always()
         uses: actions/upload-artifact@v4
