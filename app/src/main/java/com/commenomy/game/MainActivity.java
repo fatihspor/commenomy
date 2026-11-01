@@ -16,7 +16,7 @@ public class MainActivity extends Activity {
  web.getSettings().setDomStorageEnabled(true);
  setContentView(web);
  if ((getApplicationInfo().flags & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
-   web.loadUrl("file:///android_asset/index.html?testDayMinutes=60");
+   web.loadUrl("file:///android_asset/index.html");
   } else {
    web.loadUrl("file:///android_asset/index.html");
   }
