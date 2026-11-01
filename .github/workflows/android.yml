@@ -1,7 +1,7 @@
 name: Commenomy Android Beta
 on:
   push:
-    branches: [main, feature/mine-company-card-no-apk, codex/commenomy-marketplace-flow]
+    branches: [main, feature/mine-company-card-no-apk, codex/commenomy-marketplace-flow, codex/commenomy-product-tap]
   workflow_dispatch:
 concurrency:
   group: commenomy-android-beta
