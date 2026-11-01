@@ -66,7 +66,9 @@ jobs:
           disable-animations: true
           profile: pixel_6
           script: |
-            adb install -r -t app/build/outputs/apk/debug/app-debug.apk
+            adb shell settings put global package_verifier_enable 0
+            adb shell settings put global verifier_verify_adb_installs 0
+            adb install --no-streaming -r -t app/build/outputs/apk/debug/app-debug.apk
             adb shell pm path com.commenomy.game
             adb logcat -c
             adb shell am start -W -n com.commenomy.game/.MainActivity
