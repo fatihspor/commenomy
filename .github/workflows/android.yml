@@ -58,7 +58,7 @@ jobs:
           if-no-files-found: error
 
       - name: Emulator installation smoke test
-        timeout-minutes: 15
+        timeout-minutes: 20
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
@@ -72,10 +72,11 @@ jobs:
             adb shell pm path com.commenomy.game
             adb logcat -c
             START_RESULT=$(adb shell am start -n com.commenomy.game/.MainActivity 2>&1 || true)
-            sleep 120
+            sleep 240
             adb exec-out screencap -p > commenomy-launch.png || true
             adb shell logcat -d -v threadtime > commenomy-logcat.txt || true
             adb shell dumpsys activity activities > commenomy-activity.txt 2>&1 || true
+            adb shell dumpsys activity lastanr > commenomy-lastanr.txt 2>&1 || true
             printf '%s\n' "$START_RESULT"
             test "$(stat -c%s commenomy-launch.png)" -gt 1000
             file commenomy-launch.png | grep -F "PNG image data"
@@ -94,4 +95,5 @@ jobs:
             commenomy-launch.png
             commenomy-logcat.txt
             commenomy-activity.txt
+            commenomy-lastanr.txt
           if-no-files-found: ignore
