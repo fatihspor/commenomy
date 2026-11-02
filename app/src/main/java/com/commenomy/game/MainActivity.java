@@ -20,10 +20,12 @@ public class MainActivity extends Activity {
  private WebView web;
  private TextView loading;
  private Handler launchHandler;
+ private FrameLayout root;
+ private int rendererRestarts;
  @Override public void onCreate(Bundle state) { super.onCreate(state);
  Log.i(TAG, "Activity created");
  launchHandler=new Handler(Looper.getMainLooper());
- FrameLayout root=new FrameLayout(this);
+ root=new FrameLayout(this);
  root.setBackgroundColor(Color.rgb(12, 20, 37));
  loading=new TextView(this);
  loading.setText("Commenomy yükleniyor…");
@@ -33,7 +35,9 @@ public class MainActivity extends Activity {
  root.addView(loading, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
  setContentView(root);
  Log.i(TAG, "Native loading view attached; deferring WebView creation");
- launchHandler.postDelayed(() -> {
+ launchHandler.postDelayed(this::createWebView, 4000);
+ }
+ private void createWebView() {
   if (isFinishing() || isDestroyed()) return;
   Log.i(TAG, "Creating WebView after native first frame");
   web=new WebView(this);
@@ -48,6 +52,23 @@ public class MainActivity extends Activity {
    }
    @Override public void onReceivedError(WebView view, android.webkit.WebResourceRequest request, android.webkit.WebResourceError error) {
     Log.e(TAG, "Page load error: " + error.getDescription());
+   }
+   @Override public boolean onRenderProcessGone(WebView view, android.webkit.RenderProcessGoneDetail detail) {
+    Log.e(TAG, "WebView renderer exited; didCrash=" + detail.didCrash());
+    if (view != web) return true;
+    root.removeView(view);
+    view.destroy();
+    web=null;
+    if (rendererRestarts < 1 && !isFinishing()) {
+     rendererRestarts++;
+     loading.setText("Commenomy yeniden başlatılıyor…");
+     loading.setVisibility(View.VISIBLE);
+     launchHandler.postDelayed(MainActivity.this::createWebView, 1500);
+    } else {
+     loading.setText("Commenomy açılamadı. Uygulamayı yeniden başlatın.");
+     loading.setVisibility(View.VISIBLE);
+    }
+    return true;
    }
   });
   web.setWebChromeClient(new WebChromeClient() {
@@ -73,8 +94,8 @@ public class MainActivity extends Activity {
    web.loadUrl("file:///android_asset/index.html");
   }
   Log.i(TAG, "WebView loadUrl returned");
- }, 4000);
  }
+
  @Override protected void onDestroy(){ if(launchHandler!=null)launchHandler.removeCallbacksAndMessages(null); if(web!=null){ web.destroy(); web=null; } super.onDestroy(); }
  @Override public void onBackPressed(){if(web!=null && web.canGoBack())web.goBack();else super.onBackPressed();}
 }
