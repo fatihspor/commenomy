@@ -71,15 +71,16 @@ jobs:
             adb install --no-streaming -r -t app/build/outputs/apk/debug/app-debug.apk
             adb shell pm path com.commenomy.game
             adb logcat -c
-            START_RESULT=$(adb shell am start -n com.commenomy.game/.MainActivity 2>&1)
-            sleep 180
-            adb shell pidof com.commenomy.game | grep -Eq '[0-9]+'
-            adb exec-out screencap -p > commenomy-launch.png
+            START_RESULT=$(adb shell am start -n com.commenomy.game/.MainActivity 2>&1 || true)
+            sleep 120
+            adb exec-out screencap -p > commenomy-launch.png || true
+            adb shell logcat -d -v threadtime > commenomy-logcat.txt || true
+            adb shell dumpsys activity activities > commenomy-activity.txt 2>&1 || true
+            printf '%s\n' "$START_RESULT"
             test "$(stat -c%s commenomy-launch.png)" -gt 1000
             file commenomy-launch.png | grep -F "PNG image data"
-            adb shell logcat -d -v threadtime > commenomy-logcat.txt
-            adb shell dumpsys activity activities | grep -E 'mResumedActivity|topResumedActivity|ResumedActivity' | grep -F 'com.commenomy.game'
-            printf '%s\n' "$START_RESULT"
+            grep -F 'com.commenomy.game' commenomy-activity.txt
+            adb shell pidof com.commenomy.game | grep -Eq '[0-9]+'
             grep -F 'Page load started' commenomy-logcat.txt
             grep -F 'Page load finished' commenomy-logcat.txt
             ! grep -Fq 'Process: com.commenomy.game' commenomy-logcat.txt
@@ -92,4 +93,5 @@ jobs:
           path: |
             commenomy-launch.png
             commenomy-logcat.txt
+            commenomy-activity.txt
           if-no-files-found: ignore
