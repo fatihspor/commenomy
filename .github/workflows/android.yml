@@ -72,7 +72,11 @@ jobs:
             adb shell pm path com.commenomy.game
             adb logcat -c
             adb shell am start -n com.commenomy.game/.MainActivity
-            sleep 15
+            for attempt in $(seq 1 30); do
+              adb shell logcat -d -v brief > commenomy-logcat.txt
+              if grep -Fq 'Page load finished' commenomy-logcat.txt; then break; fi
+              sleep 2
+            done
             adb shell pidof com.commenomy.game | grep -Eq '[0-9]+'
             adb exec-out screencap -p > commenomy-launch.png
             test "$(stat -c%s commenomy-launch.png)" -gt 1000
