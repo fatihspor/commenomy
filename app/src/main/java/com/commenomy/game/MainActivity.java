@@ -8,11 +8,21 @@ import android.webkit.ConsoleMessage;
 import android.webkit.WebSettings;
 import android.util.Log;
 import android.graphics.Color;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 public class MainActivity extends Activity {
  private static final String TAG = "CommenomyWeb";
  private WebView web;
+ private TextView loading;
+ private Handler launchHandler;
  @Override public void onCreate(Bundle state) { super.onCreate(state);
  Log.i(TAG, "Activity created");
+ launchHandler=new Handler(Looper.getMainLooper());
  web=new WebView(this);
  web.setWebViewClient(new WebViewClient() {
   @Override public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
@@ -20,6 +30,7 @@ public class MainActivity extends Activity {
   }
   @Override public void onPageFinished(WebView view, String url) {
    Log.i(TAG, "Page load finished");
+   if (loading != null) loading.setVisibility(View.GONE);
   }
  });
  web.setWebChromeClient(new WebChromeClient() {
@@ -35,16 +46,29 @@ public class MainActivity extends Activity {
  web.getSettings().setJavaScriptEnabled(true);
  web.getSettings().setDomStorageEnabled(true);
  web.setBackgroundColor(Color.rgb(12, 20, 37));
- setContentView(web);
- Log.i(TAG, "WebView attached; scheduling page load after first frame");
- web.post(() -> {
+ FrameLayout root=new FrameLayout(this);
+ root.setBackgroundColor(Color.rgb(12, 20, 37));
+ loading=new TextView(this);
+ loading.setText("Commenomy yükleniyor…");
+ loading.setTextColor(Color.WHITE);
+ loading.setTextSize(18);
+ loading.setGravity(Gravity.CENTER);
+ web.setVisibility(View.GONE);
+ root.addView(web, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+ root.addView(loading, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+ setContentView(root);
+ Log.i(TAG, "Native loading view attached; scheduling WebView startup");
+ launchHandler.postDelayed(() -> {
+  if (web == null) return;
+  Log.i(TAG, "Starting WebView page load");
+  web.setVisibility(View.VISIBLE);
   if ((getApplicationInfo().flags & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
    web.loadUrl("file:///android_asset/index.html?testDayMinutes=60");
   } else {
    web.loadUrl("file:///android_asset/index.html");
   }
- });
+ }, 300);
  }
- @Override protected void onDestroy(){ if(web!=null){ web.destroy(); web=null; } super.onDestroy(); }
+ @Override protected void onDestroy(){ if(launchHandler!=null)launchHandler.removeCallbacksAndMessages(null); if(web!=null){ web.destroy(); web=null; } super.onDestroy(); }
  @Override public void onBackPressed(){if(web!=null && web.canGoBack())web.goBack();else super.onBackPressed();}
 }
