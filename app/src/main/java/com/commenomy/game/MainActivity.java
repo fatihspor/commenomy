@@ -43,6 +43,12 @@ public class MainActivity extends Activity {
    }
   });
   web.setWebChromeClient(new WebChromeClient() {
+   @Override public void onProgressChanged(WebView view, int progress) {
+    if (progress == 100) {
+     Log.i(TAG, "Page load progress: 100%");
+     if (loading != null) loading.setVisibility(View.GONE);
+    }
+   }
    @Override public boolean onConsoleMessage(ConsoleMessage message) {
     if (message.messageLevel() == ConsoleMessage.MessageLevel.ERROR) {
      Log.e(TAG, "JavaScript error at line " + message.lineNumber() + ": " + message.message());

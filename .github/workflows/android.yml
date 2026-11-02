@@ -66,19 +66,20 @@ jobs:
           disable-animations: true
           profile: pixel_6
           script: |
-            adb shell settings put global package_verifier_enable 0
-            adb shell settings put global verifier_verify_adb_installs 0
-            adb install --no-streaming -r -t app/build/outputs/apk/debug/app-debug.apk
-            adb shell pm path com.commenomy.game
-            adb logcat -c
-            adb shell am start -n com.commenomy.game/.MainActivity
-            sleep 45
-            adb shell pidof com.commenomy.game | grep -Eq '[0-9]+'
-            adb exec-out screencap -p > commenomy-launch.png
+            timeout 30s adb shell settings put global package_verifier_enable 0
+            timeout 30s adb shell settings put global verifier_verify_adb_installs 0
+            timeout 120s adb install --no-streaming -r -t app/build/outputs/apk/debug/app-debug.apk
+            timeout 30s adb shell pm path com.commenomy.game
+            timeout 30s adb logcat -c
+            timeout 60s adb shell am start -n com.commenomy.game/.MainActivity
+            sleep 90
+            timeout 30s adb shell pidof com.commenomy.game | grep -Eq '[0-9]+'
+            timeout 30s adb exec-out screencap -p > commenomy-launch.png
             test "$(stat -c%s commenomy-launch.png)" -gt 1000
             file commenomy-launch.png | grep -F "PNG image data"
-            adb shell logcat -d -v brief > commenomy-logcat.txt
-            adb shell dumpsys activity activities | grep -E 'mResumedActivity|topResumedActivity|ResumedActivity' | grep -F 'com.commenomy.game'
+            timeout 30s adb shell logcat -d -v brief > commenomy-logcat.txt
+            timeout 30s adb shell dumpsys activity activities | grep -E 'mResumedActivity|topResumedActivity|ResumedActivity' | grep -F 'com.commenomy.game'
+            grep -F 'Page load progress: 100%' commenomy-logcat.txt
             grep -F 'Page load finished' commenomy-logcat.txt
             ! grep -Fq 'Process: com.commenomy.game' commenomy-logcat.txt
 
