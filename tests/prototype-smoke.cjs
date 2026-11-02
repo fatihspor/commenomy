@@ -12,6 +12,7 @@ for(const marker of ['id="marketSearch"','id="marketSectorTab"','id="marketCateg
 assert.ok(html.includes('Tedarikçi Firmalar'),'Pazar shows supplier cards');
 assert.ok(html.includes("openProductSupplierMarket(order.dataset.orderProduct,order.dataset.orderType||s.shopType)"),'Company product button routes its exact product and sector');
 assert.ok(html.includes("marketViewProductId=productId;producerOfferPage=0;s.shopProduct=productId"),'Product selection is carried to the marketplace');
+assert.ok(html.includes("$('marketSelectionInfo').textContent=(shopTypeMeta[marketBrowseType]?.icon||'📦')+' '+selected.item+' • '+(shopTypeMeta[marketBrowseType]?.label||'Sektör')"),'Marketplace selection banner reflects the exact selected product');
 assert.ok(html.includes("placeholder=\"Miktar gir\" data-producer-qty="),'Supplier quantity starts blank');
 const getFunction=(name)=>{const re=new RegExp('function '+name+'\\([^\\n]*?\\n?');const i=html.indexOf('function '+name+'(');assert.notEqual(i,-1,name);let depth=0,opened=false;for(let p=i;p<html.length;p++){if(html[p]==='{'){depth++;opened=true}else if(html[p]==='}'&&opened&&--depth===0)return html.slice(i,p+1)}throw new Error(name+' body not closed')};
 const ctx={s:{shopType:'building',shopStocks:{},stockProductId:null,stock:0,shopAvgCosts:{},pendingDeliveries:[]},productFor:()=>({cost:4})};
