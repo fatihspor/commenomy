@@ -23,29 +23,6 @@ public class MainActivity extends Activity {
  @Override public void onCreate(Bundle state) { super.onCreate(state);
  Log.i(TAG, "Activity created");
  launchHandler=new Handler(Looper.getMainLooper());
- web=new WebView(this);
- web.setWebViewClient(new WebViewClient() {
-  @Override public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
-   Log.i(TAG, "Page load started");
-  }
-  @Override public void onPageFinished(WebView view, String url) {
-   Log.i(TAG, "Page load finished");
-   if (loading != null) loading.setVisibility(View.GONE);
-  }
- });
- web.setWebChromeClient(new WebChromeClient() {
-  @Override public boolean onConsoleMessage(ConsoleMessage message) {
-   if (message.messageLevel() == ConsoleMessage.MessageLevel.ERROR) {
-    Log.e(TAG, "JavaScript error at line " + message.lineNumber() + ": " + message.message());
-   }
-   return true;
-  }
- });
- web.getSettings().setAllowFileAccess(true);
- web.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
- web.getSettings().setJavaScriptEnabled(true);
- web.getSettings().setDomStorageEnabled(true);
- web.setBackgroundColor(Color.rgb(12, 20, 37));
  FrameLayout root=new FrameLayout(this);
  root.setBackgroundColor(Color.rgb(12, 20, 37));
  loading=new TextView(this);
@@ -53,21 +30,42 @@ public class MainActivity extends Activity {
  loading.setTextColor(Color.WHITE);
  loading.setTextSize(18);
  loading.setGravity(Gravity.CENTER);
- web.setVisibility(View.GONE);
- root.addView(web, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
  root.addView(loading, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
  setContentView(root);
- Log.i(TAG, "Native loading view attached; scheduling WebView startup");
+ Log.i(TAG, "Native loading view attached; deferring WebView creation");
  launchHandler.postDelayed(() -> {
-  if (web == null) return;
-  Log.i(TAG, "Starting WebView page load");
-  web.setVisibility(View.VISIBLE);
+  if (isFinishing() || isDestroyed()) return;
+  Log.i(TAG, "Creating WebView after native first frame");
+  web=new WebView(this);
+  web.setWebViewClient(new WebViewClient() {
+   @Override public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
+    Log.i(TAG, "Page load started");
+   }
+   @Override public void onPageFinished(WebView view, String url) {
+    Log.i(TAG, "Page load finished");
+    if (loading != null) loading.setVisibility(View.GONE);
+   }
+  });
+  web.setWebChromeClient(new WebChromeClient() {
+   @Override public boolean onConsoleMessage(ConsoleMessage message) {
+    if (message.messageLevel() == ConsoleMessage.MessageLevel.ERROR) {
+     Log.e(TAG, "JavaScript error at line " + message.lineNumber() + ": " + message.message());
+    }
+    return true;
+   }
+  });
+  web.getSettings().setAllowFileAccess(true);
+  web.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
+  web.getSettings().setJavaScriptEnabled(true);
+  web.getSettings().setDomStorageEnabled(true);
+  web.setBackgroundColor(Color.rgb(12, 20, 37));
+  root.addView(web, 0, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
   if ((getApplicationInfo().flags & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
    web.loadUrl("file:///android_asset/index.html?testDayMinutes=60");
   } else {
    web.loadUrl("file:///android_asset/index.html");
   }
- }, 300);
+ }, 4000);
  }
  @Override protected void onDestroy(){ if(launchHandler!=null)launchHandler.removeCallbacksAndMessages(null); if(web!=null){ web.destroy(); web=null; } super.onDestroy(); }
  @Override public void onBackPressed(){if(web!=null && web.canGoBack())web.goBack();else super.onBackPressed();}
