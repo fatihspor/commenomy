@@ -4,7 +4,7 @@ on:
     branches: [main, feature/mine-company-card-no-apk]
   workflow_dispatch:
 concurrency:
-  group: commenomy-android-beta
+  group: commenomy-android-beta-${{ github.sha }}
   cancel-in-progress: true
 jobs:
   build:
