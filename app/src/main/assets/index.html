@@ -234,6 +234,39 @@
 @media(max-width:520px){#market.market-pazar1{padding:10px 9px 18px}.market-topbar{gap:7px}.market-brand{gap:5px}.market-brand-mark{width:28px;font-size:25px}.market-brand h2{font-size:19px}.market-brand small{font-size:9px}.market-top-actions{gap:6px}.market-top-actions span{font-size:8px}.market-top-actions b{font-size:17px}#market .market-category-tabs{gap:4px}#market .market-category-tab{min-height:52px;padding:4px 1px;font-size:9px}.market-product-row{grid-template-columns:minmax(0,1.55fr) minmax(130px,.9fr);gap:6px}.marketplace-product-card{grid-template-columns:minmax(70px,.85fr) minmax(0,1fr);gap:6px;min-height:100px;padding:6px}.market-summary-card{padding:7px}.market-summary-card h3{font-size:11px}.market-summary-card>div{font-size:9px}.market-summary-card b{font-size:10px}#market .marketplace-product-art{min-height:82px;font-size:38px}#market .marketplace-product-name{font-size:16px}#market .marketplace-product-unit{font-size:12px}#market .marketplace-product-price{font-size:12px}.market-quantity-row{gap:5px;font-size:10px}.market-quantity-stepper{grid-template-columns:27px 48px 27px}.market-quantity-stepper input{width:48px}.market-utility-pill,.market-filter-pill{padding:4px 6px;font-size:8px}.market-filters-row{grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) auto;gap:4px}.market-supplier-heading{font-size:13px}.market-supplier-heading>span{font-size:8px}#market.market-purchase-view .producer-offer{grid-template-columns:minmax(0,1fr) 64px;grid-template-areas:"head buy" "meta buy" "delivery total";gap:3px 6px;min-height:64px;padding:6px}.market-pazar1 .producer-offer-head{grid-template-columns:22px minmax(0,1fr) auto}.market-pazar1 .producer-rank{width:21px;height:21px;font-size:11px}.market-pazar1 .producer-offer-head b{font-size:10px}.market-pazar1 .producer-offer-head strong{font-size:9px}.market-pazar1 .producer-offer-meta{font-size:8px}.market-pazar1 .producer-delivery{font-size:8px}.market-pazar1 .producer-offer button[data-order-producer]{min-width:50px;min-height:34px;font-size:11px}.market-supplier-heading>span{max-width:42%;white-space:normal}}
 @media(max-width:360px){.market-top-actions{gap:4px}.market-top-actions span{font-size:7px}.market-brand h2{font-size:17px}.market-brand small{font-size:8px}.market-summary-card>div{gap:2px;font-size:8px}.market-summary-card b{font-size:9px}.market-quantity-row{gap:3px}.market-utility-pill{padding:4px;font-size:7px}}
 
+
+/* Pazar1 0.3.13 mobile overflow repair */
+#market.market-pazar1,#market.market-pazar1 *{box-sizing:border-box}
+#market.market-pazar1 .market-body-layout,#market.market-pazar1 .market-main-content,#market.market-pazar1 .market-product-row,#market.market-pazar1 #marketSupplierMount{min-width:0;max-width:100%}
+#market.market-pazar1 .market-product-row{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:6px}
+#market.market-pazar1 .market-summary-card{min-width:0;overflow:hidden}
+#market.market-pazar1 .market-summary-card>div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px}
+#market.market-pazar1 .market-summary-card b{font-size:clamp(8px,2vw,11px);overflow-wrap:anywhere;white-space:normal;text-align:right}
+#market.market-pazar1 .marketplace-product-card,#market.market-pazar1 .producer-offer{min-width:0;overflow:hidden}
+#market.market-pazar1 .producer-offer-head strong{display:none}
+#market.market-pazar1 .producer-offer-meta{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#market.market-pazar1 .market-supplier-controls{display:none!important}
+@media(max-width:600px){
+#market.market-pazar1{padding:9px 7px 18px}
+#market.market-pazar1 .market-body-layout{grid-template-columns:48px minmax(0,1fr);gap:5px}
+#market.market-pazar1 .market-product-row{grid-template-columns:minmax(0,1.5fr) minmax(104px,1fr);gap:5px}
+#market.market-pazar1 .marketplace-product-card{grid-template-columns:minmax(0,1fr);gap:2px;padding:5px;min-height:102px}
+#market.market-pazar1 .marketplace-product-art{min-height:53px;font-size:29px}
+#market.market-pazar1 .marketplace-product-name{font-size:12px;overflow-wrap:anywhere}
+#market.market-pazar1 .marketplace-product-unit{font-size:10px}
+#market.market-pazar1 .market-summary-card{padding:5px 4px;gap:3px}
+#market.market-pazar1 .market-summary-card h3{font-size:10px}
+#market.market-pazar1 .market-summary-card>div{font-size:8px}
+#market.market-pazar1 .market-quantity-row{flex-wrap:wrap;gap:4px}
+#market.market-pazar1 .market-supplier-heading{flex-wrap:wrap;font-size:12px}
+#market.market-pazar1 .market-supplier-heading>span{margin-left:0;max-width:100%;font-size:8px}
+#market.market-purchase-view .producer-offer{grid-template-columns:minmax(0,1fr) 55px;grid-template-areas:"head buy" "meta buy" "delivery total";gap:3px 5px;min-height:66px;padding:5px}
+#market.market-pazar1 .producer-offer-head{grid-template-columns:21px minmax(0,1fr);gap:4px}
+#market.market-pazar1 .producer-offer-head b{font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#market.market-pazar1 .producer-offer-meta:nth-of-type(4){font-size:9px;white-space:normal;overflow-wrap:anywhere}
+#market.market-pazar1 .producer-offer button[data-order-producer]{min-width:0;width:100%;font-size:11px}
+}
+
 </style></head>
 <body><header><main><h1 class="brand"><svg class="brand-mark" viewBox="0 0 108 108" aria-hidden="true"><rect width="108" height="108" rx="24" fill="#10233d"/><circle cx="54" cy="54" r="43" fill="#173b5e"/><path d="M25 67h14v24H25zm22-14h14v38H47zm22-15h14v53H69z" fill="#4de1b3"/><path d="m25 60 20-19 14 9 22-24 6 6-26 29-14-9-17 16z" fill="#ffc56f"/></svg><span>Commenomy</span></h1><p>Bir ülkenin ekonomisini sen şekillendir.</p><small>Oynanabilir yerel prototip • Çok oyunculu sunucu bağlantısı henüz yok</small></main></header>
 <main><div class="panel" id="setup"><h2>Yeni bir girişim başlıyor</h2><p>İstanbul, Ankara veya İzmir'de küçük bir üretici olarak işe başla. Üret, sat, yatırım yap ve borcunu yönet.</p><label>Oyuncu adı <input id="player" maxlength="24" placeholder="Oyuncu adın"></label><label>Başlangıç şehri <select id="city"><option>İstanbul</option><option>Ankara</option><option>İzmir</option></select></label><button id="start">Oyuna başla</button></div>
