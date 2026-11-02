@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const html=fs.readFileSync('index.html','utf8');
 const asset=fs.readFileSync('app/src/main/assets/index.html','utf8');
 assert.equal(html,asset,'Android assets must match');
-assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+14[\s\S]*versionName\s+'0\.3\.11'/,'APK version must be 0.3.12');
+assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\\s+15[\\s\\S]*versionName\\s+'0\\.3\\.12'/,'APK version must be 0.3.12');
 const js=html.match(/<script>([\s\S]*?)<\/script>/i)?.[1];
 assert.ok(js,'App script exists');
 new vm.Script(js);
