@@ -26,28 +26,47 @@ assert.equal(vm.runInContext("shopAverageCost('building_cement')",ctx),5.4,'Exis
 vm.runInContext("recordShopPurchaseCost('building_cement',10,60)",ctx);
 assert.equal(ctx.s.shopAvgCosts.building_cement,5.7,'New purchases update weighted average cost');
 
+class TestElement{
+  constructor(id=''){this.id=id;this.value='';this.textContent='';this.innerHTML='';this.children=[];this.dataset={};this.classes=new Set();this.classList={add:x=>this.classes.add(x),remove:x=>this.classes.delete(x),toggle:(x,v)=>{if(v)this.classes.add(x);else this.classes.delete(x)},contains:x=>this.classes.has(x)};this.disabled=false}
+  append(...items){this.children.push(...items)}
+  appendChild(item){this.children.push(item);return item}
+  replaceChildren(...items){this.children=[...items]}
+  setAttribute(){}
+  scrollIntoView(){}
+}
 const routeElements=new Map();
-function routeEl(id){if(!routeElements.has(id)){routeElements.set(id,{value:'',classList:{add(){},remove(){},toggle(){}},scrollIntoView(){}})}return routeElements.get(id)}
+function routeEl(id){if(!routeElements.has(id))routeElements.set(id,new TestElement(id));return routeElements.get(id)}
+const quoteRequests=[];
+const brick={id:'building_brick',item:'Tuğla',price:8,unit:'adet',cost:0.47};
 const routeCtx={
-  s:{shopRented:true,shopType:'building',shopProduct:'building_cement',shopPrices:{},shopStocks:{}},
-  productCatalog:{building:[{id:'building_brick',item:'Tuğla',price:8,unit:'adet'}]},
-  shopTypeMeta:{building:{label:'Nalbur'}},
+  s:{shopRented:true,shopType:'building',shopProduct:'building_cement',shopPrice:8,shopPrices:{},shopStocks:{},shopAvgCosts:{},warehouses:0,shopStorageUse:'retail'},
+  productCatalog:{market:[],grocery:[],bakery:[],building:[{id:'building_cement',item:'Çimento',price:8,unit:'torba',cost:4},brick],clothing:[],electronics:[]},
+  shopTypeMeta:{market:{label:'Market',icon:'🛒'},grocery:{label:'Bakkal',icon:'🏪'},bakery:{label:'Fırın',icon:'🥖'},building:{label:'Nalbur',icon:'🛠️'},clothing:{label:'Giyim',icon:'👕'},electronics:{label:'Elektronik',icon:'🔌'}},
+  productIcons:{building_brick:'📦'},
   $:routeEl,
-  settleContinuousShopSales(){},ensureShopInventory(){},dailyFamilyDemand(){return 1},populateShopProductOptions(){},
-  producerQuotes(){return[]},persist(){},renderShopCatalog(){},renderProducerOrderLocation(){},renderMarketProductChoices(){routeCtx.visibleProduct=routeCtx.marketViewProductId},updateProducerPreview(){},
-  showTab(id){routeCtx.activeTab=id},requestAnimationFrame(fn){fn()},setTimeout(fn){fn()},Date
+  document:{createElement:tag=>new TestElement(tag),querySelectorAll:()=>[]},
+  window:{},
+  settleContinuousShopSales(){},ensureShopInventory(){},dailyFamilyDemand(){return 1},populateShopProductOptions(){},persist(){},renderShopCatalog(){},
+  producerQuotes(qty,type,productId){quoteRequests.push([qty,type,productId]);const product=routeCtx.productCatalog[type].find(p=>p.id===productId);return[{id:'supplier-1',name:'Trakya Yapı Malzemeleri Üreticisi',city:'İstanbul',price:0.69,unitDelivered:1.12,delivery:5.6,carrierName:'Devlet Lojistik A.Ş.',carrierOwner:'government',deliveryDays:0,stock:60,qty,total:qty*1.12,available:true,goodsCost:qty*.69}]},
+  productFor(type,id){return routeCtx.productCatalog[type]?.find(p=>p.id===id)},
+  producerTarget(){return{room:50,destination:'shop'}},money(n){return Number(n).toFixed(2)+' USD'},
+  renderShopCatalog(){},requestAnimationFrame(fn){fn()},setTimeout(fn){fn()},Date
 };
 vm.createContext(routeCtx);
-vm.runInContext(getFunction('openProductSupplierMarket'),routeCtx);
+for(const fn of ['renderProducerOrderLocation','renderMarketProductChoices','updateProducerPreview','showTab','openProductSupplierMarket'])vm.runInContext(getFunction(fn),routeCtx);
 routeCtx.order={dataset:{orderProduct:'building_brick',orderType:'building'}};
 routeCtx.clickEvent={preventDefault(){},stopPropagation(){}};
 const clickBinding=html.match(/order\.onclick=event=>\{event\.preventDefault\(\);event\.stopPropagation\(\);openProductSupplierMarket\(order\.dataset\.orderProduct,order\.dataset\.orderType\|\|s\.shopType\)\}/)?.[0];
 assert.ok(clickBinding,'Product button has a direct click binding');
 vm.runInContext(clickBinding,routeCtx);
 routeCtx.order.onclick(routeCtx.clickEvent);
-assert.equal(routeCtx.activeTab,'market','Click switches from Company to Pazar');
+assert.equal(routeEl('market').classList.contains('hidden'),false,'Click switches from Company to visible Pazar');
+assert.equal(routeEl('company').classList.contains('hidden'),true,'Click hides Company after navigation');
 assert.equal(routeCtx.s.shopProduct,'building_brick','Click selects the clicked SKU in company state');
 assert.equal(routeCtx.marketViewProductId,'building_brick','Click selects the clicked SKU in Pazar');
-assert.equal(routeCtx.visibleProduct,'building_brick','Pazar renders the clicked product page');
-
+assert.equal(routeEl('marketCategoryTitle').textContent,'Nalbur • Tuğla','Pazar product heading matches the clicked SKU');
+assert.equal(routeEl('producerOrderTitle').textContent,'Tedarikçi Firmalar • Tuğla • En ucuz 10 firma','Supplier section matches the clicked SKU');
+assert.equal(routeEl('marketProductChoices').children[0].children[1].children[0].textContent,'Tuğla','The visible Pazar card is Tuğla');
+assert.ok(quoteRequests.some(([,type,productId])=>type==='building'&&productId==='building_brick'),'Supplier quotes are loaded for Tuğla');
+assert.ok(routeEl('producerOffers').innerHTML.includes('Trakya Yapı Malzemeleri Üreticisi'),'Supplier list is rendered');
 console.log('0.3.11 shop-to-market product routing, cost, and Android asset checks passed');
