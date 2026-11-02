@@ -81,6 +81,7 @@ jobs:
             adb shell dumpsys activity activities | grep -E 'mResumedActivity|topResumedActivity|ResumedActivity' | grep -F 'com.commenomy.game'
             printf '%s\n' "$START_RESULT"
             printf '%s\n' "$START_RESULT" | grep -F 'Status: ok'
+            grep -F 'Page load finished' commenomy-logcat.txt
             ! grep -Fq 'Process: com.commenomy.game' commenomy-logcat.txt
 
       - name: Upload emulator launch screenshot
