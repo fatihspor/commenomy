@@ -74,18 +74,17 @@ jobs:
             START_RESULT=$(adb shell am start -W -n com.commenomy.game/.MainActivity 2>&1)
             sleep 8
             adb shell pidof com.commenomy.game | grep -Eq '[0-9]+'
-            for attempt in $(seq 1 10); do
-              adb shell uiautomator dump /sdcard/commenomy-window.xml >/dev/null 2>&1 || true
-              adb shell cat /sdcard/commenomy-window.xml > commenomy-window.xml || true
-              if grep -Fq 'Oyuncu adı' commenomy-window.xml; then break; fi
-              sleep 2
-            done
-            grep -F 'Oyuncu adı' commenomy-window.xml
             adb exec-out screencap -p > commenomy-launch.png
             test "$(stat -c%s commenomy-launch.png)" -gt 1000
             file commenomy-launch.png | grep -F "PNG image data"
+            adb shell logcat -d -v brief > commenomy-logcat.txt
+            for attempt in $(seq 1 3); do
+              timeout 12s adb shell uiautomator dump /sdcard/commenomy-window.xml >/dev/null 2>&1 || true
+              adb shell cat /sdcard/commenomy-window.xml > commenomy-window.xml || true
+              if grep -Fq 'Oyuncu adı' commenomy-window.xml; then break; fi
+              sleep 1
+            done
             adb shell dumpsys activity activities | grep -E 'mResumedActivity|topResumedActivity|ResumedActivity' | grep -F 'com.commenomy.game'
-            adb logcat -d -v brief > commenomy-logcat.txt
             printf '%s\n' "$START_RESULT"
             printf '%s\n' "$START_RESULT" | grep -F 'Status: ok'
             grep -F 'Oyuncu adı' commenomy-window.xml
