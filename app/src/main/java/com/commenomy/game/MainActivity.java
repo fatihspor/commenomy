@@ -46,8 +46,14 @@ public class MainActivity extends Activity {
     Log.i(TAG, "Page load finished");
     if (loading != null) loading.setVisibility(View.GONE);
    }
+   @Override public void onReceivedError(WebView view, android.webkit.WebResourceRequest request, android.webkit.WebResourceError error) {
+    Log.e(TAG, "Page load error: " + error.getDescription());
+   }
   });
   web.setWebChromeClient(new WebChromeClient() {
+   @Override public void onProgressChanged(WebView view, int progress) {
+    if (progress == 0 || progress == 100) Log.i(TAG, "WebView progress " + progress);
+   }
    @Override public boolean onConsoleMessage(ConsoleMessage message) {
     if (message.messageLevel() == ConsoleMessage.MessageLevel.ERROR) {
      Log.e(TAG, "JavaScript error at line " + message.lineNumber() + ": " + message.message());
