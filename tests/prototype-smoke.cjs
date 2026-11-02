@@ -12,7 +12,7 @@ for(const marker of ['id="marketSearch"','id="marketSectorTab"','id="marketCateg
 assert.ok(html.includes('Tedarikçi Firmalar'),'Pazar shows supplier cards');
 for(const marker of ['class="market-topbar"','class="market-search"','class="market-category-tabs"','id="marketProductRow"','id="marketSummary"','id="marketQuantityRow"','id="marketSupplierMount"','id="marketFirmsJump"','id="moreProducerOffers"'])assert.ok(html.includes(marker),'Pazar1 layout includes '+marker);
 assert.ok(html.includes("more.textContent=producerOfferPage>=pageCount-1?'İlk 5 teklife dön':'Diğer 5 Teklifi Gör ›'"),'Pazar1 exposes the next-ten-suppliers action');
-assert.ok(html.includes('allOffers=producerQuotes(compareQty,type,productId).slice(0,10)'),'Pazar1 shows only the cheapest ten suppliers across two pages');
+assert.ok(html.includes('marketOffers=marketOpen?allOffers.slice(0,10):allOffers'),'Pazar1 shows only the cheapest ten suppliers while other screens keep their supplier lists');
 assert.ok(html.includes("producerOfferPage=(producerOfferPage+1)%pageCount;updateProducerPreview()"),'Pazar1 button switches between its two supplier pages');
 assert.ok(!html.includes('.market-supplier-controls{display:none!important}'),'Pazar1 must not hide the other-five-suppliers button');
 assert.ok(html.includes('#market.market-purchase-view .market-side-nav{display:none}'),'Supplier purchase view uses the full mobile width');
