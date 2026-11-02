@@ -37,6 +37,7 @@ public class MainActivity extends Activity {
   if (isFinishing() || isDestroyed()) return;
   Log.i(TAG, "Creating WebView after native first frame");
   web=new WebView(this);
+  Log.i(TAG, "WebView constructor completed");
   web.setWebViewClient(new WebViewClient() {
    @Override public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
     Log.i(TAG, "Page load started");
@@ -65,6 +66,7 @@ public class MainActivity extends Activity {
   } else {
    web.loadUrl("file:///android_asset/index.html");
   }
+  Log.i(TAG, "WebView loadUrl returned");
  }, 4000);
  }
  @Override protected void onDestroy(){ if(launchHandler!=null)launchHandler.removeCallbacksAndMessages(null); if(web!=null){ web.destroy(); web=null; } super.onDestroy(); }

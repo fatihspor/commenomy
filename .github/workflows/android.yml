@@ -1,7 +1,7 @@
 name: Commenomy Android Beta
 on:
   push:
-    branches: [main, feature/mine-company-card-no-apk]
+    branches: [main, feature/mine-company-card-no-apk, codex/commenomy-launch-validation]
   workflow_dispatch:
 concurrency:
   group: commenomy-android-beta
@@ -72,7 +72,7 @@ jobs:
             adb shell pm path com.commenomy.game
             adb logcat -c
             START_RESULT=$(adb shell am start -W -n com.commenomy.game/.MainActivity 2>&1)
-            sleep 15
+            sleep 60
             adb shell pidof com.commenomy.game | grep -Eq '[0-9]+'
             adb exec-out screencap -p > commenomy-launch.png
             test "$(stat -c%s commenomy-launch.png)" -gt 1000
