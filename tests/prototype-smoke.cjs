@@ -67,7 +67,7 @@ assert.equal(routeEl('company').classList.contains('hidden'),true,'Click hides C
 assert.equal(routeCtx.s.shopProduct,'building_brick','Click selects the clicked SKU in company state');
 assert.equal(routeCtx.marketViewProductId,'building_brick','Click selects the clicked SKU in Pazar');
 assert.equal(routeEl('marketCategoryTitle').textContent,'Nalbur • Tuğla','Pazar product heading matches the clicked SKU');
-assert.equal(routeEl('producerOrderTitle').textContent,'Tedarikçi Firmalar • Tuğla • En ucuz 10 firma','Supplier section matches the clicked SKU');
+assert.equal(routeEl('producerOrderTitle').textContent,'Tedarikçi Firmalar • Tuğla • En ucuz 5 firma','Supplier section matches the clicked SKU');
 assert.equal(routeEl('marketProductChoices').children[0].children[1].children[0].textContent,'Tuğla','The visible Pazar card is Tuğla');
 assert.ok(quoteRequests.some(([,type,productId])=>type==='building'&&productId==='building_brick'),'Supplier quotes are loaded for Tuğla');
 assert.ok(routeEl('producerOffers').innerHTML.includes('Trakya Yapı Malzemeleri Üreticisi'),'Supplier list is rendered');
