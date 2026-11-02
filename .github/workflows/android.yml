@@ -71,20 +71,33 @@ jobs:
             adb install --no-streaming -r -t app/build/outputs/apk/debug/app-debug.apk
             adb shell pm path com.commenomy.game
             adb logcat -c
-            adb shell am start -W -n com.commenomy.game/.MainActivity
+            START_RESULT=$(adb shell am start -W -n com.commenomy.game/.MainActivity 2>&1)
             sleep 8
             adb shell pidof com.commenomy.game | grep -Eq '[0-9]+'
+            for attempt in $(seq 1 10); do
+              adb shell uiautomator dump /sdcard/commenomy-window.xml >/dev/null 2>&1 || true
+              adb shell cat /sdcard/commenomy-window.xml > commenomy-window.xml || true
+              if grep -Fq 'Oyuncu adı' commenomy-window.xml; then break; fi
+              sleep 2
+            done
+            grep -F 'Oyuncu adı' commenomy-window.xml
             adb exec-out screencap -p > commenomy-launch.png
             test "$(stat -c%s commenomy-launch.png)" -gt 1000
             file commenomy-launch.png | grep -F "PNG image data"
             adb shell dumpsys activity activities | grep -E 'mResumedActivity|topResumedActivity|ResumedActivity' | grep -F 'com.commenomy.game'
             adb logcat -d -v brief > commenomy-logcat.txt
+            printf '%s\n' "$START_RESULT"
+            printf '%s\n' "$START_RESULT" | grep -F 'Status: ok'
+            grep -F 'Oyuncu adı' commenomy-window.xml
             ! grep -Fq 'Process: com.commenomy.game' commenomy-logcat.txt
 
       - name: Upload emulator launch screenshot
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Commenomy-Emulator-Screenshot
-          path: commenomy-launch.png
+          name: Commenomy-Emulator-Diagnostics
+          path: |
+            commenomy-launch.png
+            commenomy-window.xml
+            commenomy-logcat.txt
           if-no-files-found: ignore
