@@ -10,6 +10,8 @@ assert.ok(js,'App script exists');
 new vm.Script(js);
 for(const marker of ['id="marketSearch"','id="marketSectorTab"','id="marketCategoryTabs"','id="marketProductChoices"','id="marketSupplierMount"','id="marketFirmsJump"']) assert.ok(html.includes(marker),marker);
 assert.ok(html.includes('Tedarikçi Firmalar'),'Pazar shows supplier cards');
+for(const marker of ['class="market-page-heading"','class="market-sector-tab"','class="market-category-tabs"','marketplace-product-card','marketplace-product-order','id="marketFirmsJump"','id="moreProducerOffers"','Tedarikçi Firmalar'])assert.ok(html.includes(marker),'Pazar1 layout includes '+marker);
+assert.ok(html.includes("more.textContent=producerOfferPage===0?'Sonraki 10 firma ›'"),'Pazar1 exposes the next-ten-suppliers action');
 assert.ok(html.includes("openProductSupplierMarket(order.dataset.orderProduct,order.dataset.orderType||s.shopType)"),'Company product button routes its exact product and sector');
 assert.ok(html.indexOf("showTab('market');persist();renderShopCatalog()")<html.indexOf("renderProducerOrderLocation();$('producerOrderCard').classList.remove('hidden')"),'Marketplace opens before the company view is persisted');
 assert.ok(html.includes("order.onclick=event=>{event.preventDefault();event.stopPropagation();openProductSupplierMarket(order.dataset.orderProduct,order.dataset.orderType||s.shopType)}"),'Each product button directly opens its exact marketplace product');
