@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const html=fs.readFileSync('index.html','utf8');
 const asset=fs.readFileSync('app/src/main/assets/index.html','utf8');
 assert.equal(html,asset,'Android assets must match');
-assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+15[\s\S]*versionName\s+'0\.3\.12'/,'APK version must be 0.3.11');
+assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+16[\s\S]*versionName\s+'0\.3\.13'/,'APK version must be 0.3.13');
 const js=html.match(/<script>([\s\S]*?)<\/script>/i)?.[1];
 assert.ok(js,'App script exists');
 new vm.Script(js);
@@ -71,4 +71,4 @@ assert.equal(routeEl('producerOrderTitle').textContent,'Tedarikçi Firmalar • 
 assert.equal(routeEl('marketProductChoices').children[0].children[1].children[0].textContent,'Tuğla','The visible Pazar card is Tuğla');
 assert.ok(quoteRequests.some(([,type,productId])=>type==='building'&&productId==='building_brick'),'Supplier quotes are loaded for Tuğla');
 assert.ok(routeEl('producerOffers').innerHTML.includes('Trakya Yapı Malzemeleri Üreticisi'),'Supplier list is rendered');
-console.log('0.3.11 shop-to-market product routing, cost, and Android asset checks passed');
+console.log('0.3.13 shop-to-market product routing, cost, and Android asset checks passed');
