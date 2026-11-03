@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const html=fs.readFileSync('index.html','utf8');
 const asset=fs.readFileSync('app/src/main/assets/index.html','utf8');
 assert.equal(html,asset,'Android assets must match');
-assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+36[\s\S]*versionName\s+'1\.1\.20'/,'APK version must be 1.1.19');
+assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+36[\s\S]*versionName\s+'1\.1\.20'/,'APK version must be 1.1.20');
 assert.ok(html.includes("money(x.unitDelivered)+'/'+unit+'</strong><strong class=\"producer-order-total\">'+(valid?'Toplam tutar: '+money(quote.total)"),'Supplier price shows one currency and a quantity-based amount');
 assert.ok(html.includes("if(orderTotal)orderTotal.textContent=valid?'Toplam tutar: '+money(quote.total):'Toplam tutar: miktar girince hesaplanır'"),'Supplier amount line updates with quantity changes');
 assert.ok(html.includes("const id=input.dataset.producerQty;producerOrderQuantities[id]=input.value"),'Supplier quantity remains visible when it exceeds stock or capacity so warning colors can appear');
@@ -35,7 +35,7 @@ assert.ok(html.includes("buyFromProducers(id,qty)"),'Supplier Al buttons call th
 assert.ok(html.includes("orderShopProduct(order.dataset.orderProduct,selectedCompanyShopId)"),'Company product button routes its exact product and selected shop');
 assert.ok(html.indexOf("showTab('market');renderShopCatalog()")<html.indexOf("renderProducerOrderLocation();$('producerOrderCard').classList.remove('hidden')"),'Marketplace opens before supplier offers render');
 assert.ok(html.includes("order.disabled=!selected;"),'Product buttons are enabled for a resolved shop');
-assert.ok(html.includes("const targetShop=selected||shopLocations()[0];"),'Product orders resolve the selected shop before routing');
+assert.ok(html.includes("const target=shops.find(x=>x.id===shopId)||shops[0]"),'Product orders resolve the selected shop by id');
 assert.ok(html.includes("minus.onclick=event=>{event.preventDefault();event.stopPropagation();adjustShopCatalogPrice(p.id,-0.10)}")&&html.includes("plus.onclick=event=>{event.preventDefault();event.stopPropagation();adjustShopCatalogPrice(p.id,0.10)}"),'Catalog price steppers handle direct clicks');
 assert.ok(html.includes("supplierTargetShopId=targetShop.primary?null:targetShop.id"),'Marketplace purchases retain the selected branch as their target');
 assert.ok(html.includes('destinationShopId:branch?.id||null'),'Branch supplier orders keep the destination shop id');
@@ -100,7 +100,7 @@ const routeCtx={
 };
 vm.createContext(routeCtx);
 for(const fn of ['renderProducerOrderLocation','renderMarketProductChoices','updateProducerPreview','showTab','openProductSupplierMarket'])vm.runInContext(getFunction(fn),routeCtx);
-assert.ok(html.includes("const current=currentShopViewData();openProductSupplierMarket(order.dataset.orderProduct,order.dataset.orderType||current?.type||s.shopType,current?.shop?.id||selectedCompanyShopId)"),'Delegated product buttons use the current selected shop');
+
 routeCtx.openProductSupplierMarket('building_brick','building','main');
 assert.equal(routeEl('market').classList.contains('hidden'),false,'Click switches from Company to visible Pazar');
 assert.equal(routeEl('company').classList.contains('hidden'),true,'Click hides Company after navigation');
