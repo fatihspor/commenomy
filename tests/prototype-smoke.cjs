@@ -32,7 +32,7 @@ assert.ok(!html.includes('.market-supplier-controls{display:none!important}'),'P
 assert.ok(html.includes('#market.market-purchase-view .market-side-nav{display:none}'),'Supplier purchase view uses the full mobile width');
 assert.ok(html.includes('grid-template-areas:"head buy" "meta buy" "delivery buy" "total total"'),'Mobile supplier offers have separate readable content rows');
 assert.ok(html.includes("buyFromProducers(id,qty)"),'Supplier Al buttons call the purchase handler');
-assert.ok(html.includes("const current=currentShopViewData();openProductSupplierMarket(order.dataset.orderProduct,order.dataset.orderType||current?.type||s.shopType,current?.shop?.id||selectedCompanyShopId)"),'Company product button routes its exact product and selected shop');
+assert.ok(html.includes("orderShopProduct(order.dataset.orderProduct,selectedCompanyShopId)"),'Company product button routes its exact product and selected shop');
 assert.ok(html.indexOf("showTab('market');renderShopCatalog()")<html.indexOf("renderProducerOrderLocation();$('producerOrderCard').classList.remove('hidden')"),'Marketplace opens before supplier offers render');
 assert.ok(html.includes("order.disabled=!selected;"),'Product buttons are enabled for a resolved shop');
 assert.ok(html.includes("const targetShop=selected||shopLocations()[0];"),'Product orders resolve the selected shop before routing');
