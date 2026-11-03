@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const html=fs.readFileSync('index.html','utf8');
 const asset=fs.readFileSync('app/src/main/assets/index.html','utf8');
 assert.equal(html,asset,'Android assets must match');
-assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+36[\s\S]*versionName\s+'1\.1\.20'/,'APK version must be 1.1.20');
+assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+37[\s\S]*versionName\s+'1\.1\.21'/,'APK version must be 1.1.20');
 assert.ok(html.includes("money(x.unitDelivered)+'/'+unit+'</strong><strong class=\"producer-order-total\">'+(valid?'Toplam tutar: '+money(quote.total)"),'Supplier price shows one currency and a quantity-based amount');
 assert.ok(html.includes("if(orderTotal)orderTotal.textContent=valid?'Toplam tutar: '+money(quote.total):'Toplam tutar: miktar girince hesaplanır'"),'Supplier amount line updates with quantity changes');
 assert.ok(html.includes("const id=input.dataset.producerQty;producerOrderQuantities[id]=input.value"),'Supplier quantity remains visible when it exceeds stock or capacity so warning colors can appear');
@@ -34,7 +34,7 @@ assert.ok(html.includes('grid-template-areas:"head buy" "meta buy" "delivery buy
 assert.ok(html.includes("buyFromProducers(id,qty)"),'Supplier Al buttons call the purchase handler');
 assert.ok(html.includes("orderShopProduct(order.dataset.orderProduct,selectedCompanyShopId)"),'Company product button routes its exact product and selected shop');
 assert.ok(html.indexOf("showTab('market');renderShopCatalog()")<html.indexOf("renderProducerOrderLocation();$('producerOrderCard').classList.remove('hidden')"),'Marketplace opens before supplier offers render');
-assert.ok(html.includes("order.disabled=!selected;"),'Product buttons are enabled for a resolved shop');
+assert.ok(html.includes("order.disabled=false;")&&html.includes("orderShopProduct(p.id,selected.id)"),'Product buttons directly target the resolved primary or branch shop');assert.ok(html.includes('function rentalStreetId()')&&html.includes('s.rentalStreetSelection=Number(id)')&&html.includes('street=rentalStreetId()'),'Rental street choice is saved and reused through eligibility and rental');
 assert.ok(html.includes("target=shops.find(x=>x.id===shopId)||shops[0]"),'Product orders resolve the selected shop by id');
 assert.ok(html.includes("minus.onclick=event=>{event.preventDefault();event.stopPropagation();adjustShopCatalogPrice(p.id,-0.10)}")&&html.includes("plus.onclick=event=>{event.preventDefault();event.stopPropagation();adjustShopCatalogPrice(p.id,0.10)}"),'Catalog price steppers handle direct clicks');
 assert.ok(html.includes("supplierTargetShopId=targetShop.primary?null:targetShop.id"),'Marketplace purchases retain the selected branch as their target');
@@ -123,5 +123,5 @@ vm.createContext(branchTargetCtx);vm.runInContext(getFunction('producerTarget'),
 const branchTarget=vm.runInContext('producerTarget()',branchTargetCtx);
 assert.equal(branchTarget.branch,true,'Selected secondary shop can receive a supplier order');
 assert.equal(branchTarget.room,55,'Branch order availability uses its own capacity and pending deliveries');
-console.log('1.1.12 product routing, shop catalog, street vacancy, and Android asset checks passed');
+console.log('1.1.21 product routing, shop catalog, street vacancy, and Android asset checks passed');
 
