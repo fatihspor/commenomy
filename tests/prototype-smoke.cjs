@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const html=fs.readFileSync('index.html','utf8');
 const asset=fs.readFileSync('app/src/main/assets/index.html','utf8');
 assert.equal(html,asset,'Android assets must match');
-assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+26[\s\S]*versionName\s+'1\.1\.10'/,'APK version must be 1.1.10');
+assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+27[\s\S]*versionName\s+'1\.1\.11'/,'APK version must be 1.1.10');
 assert.ok(html.includes("money(x.unitDelivered)+'/'+unit+'</strong><strong class=\"producer-order-total\">'+(valid?'Toplam tutar: '+money(quote.total)"),'Supplier price shows one currency and a quantity-based amount');
 assert.ok(html.includes("if(orderTotal)orderTotal.textContent=valid?'Toplam tutar: '+money(quote.total):'Toplam tutar: miktar girince hesaplanır'"),'Supplier amount line updates with quantity changes');
 assert.ok(html.includes("const max=Number(input.max)||0,qty=Number(input.value);if(Number.isInteger(qty)&&qty>max)input.value=String(max);const id=input.dataset.producerQty;producerOrderQuantities[id]=input.value"),'Supplier quantity input is clamped to available stock and capacity');
@@ -31,9 +31,9 @@ assert.ok(!html.includes('.market-supplier-controls{display:none!important}'),'P
 assert.ok(html.includes('#market.market-purchase-view .market-side-nav{display:none}'),'Supplier purchase view uses the full mobile width');
 assert.ok(html.includes('grid-template-areas:"head buy" "meta buy" "delivery buy" "total total"'),'Mobile supplier offers have separate readable content rows');
 assert.ok(html.includes("buyFromProducers(id,qty)"),'Supplier Al buttons call the purchase handler');
-assert.ok(html.includes("openProductSupplierMarket(order.dataset.orderProduct,order.dataset.orderType||shopType)"),'Company product button routes its exact product and sector');
+assert.ok(html.includes("openProductSupplierMarket(order.dataset.orderProduct,order.dataset.orderType||shopType,selected?.id||selectedCompanyShopId)"),'Company product button routes its exact product and sector');
 assert.ok(html.indexOf("showTab('market');renderShopCatalog()")<html.indexOf("renderProducerOrderLocation();$('producerOrderCard').classList.remove('hidden')"),'Marketplace opens before supplier offers render');
-assert.ok(html.includes("order.onclick=event=>{event.preventDefault();event.stopPropagation();openProductSupplierMarket(order.dataset.orderProduct,order.dataset.orderType||shopType)}"),'Each product button directly opens its exact marketplace product');
+assert.ok(html.includes("order.onclick=event=>{event.preventDefault();event.stopPropagation();openProductSupplierMarket(order.dataset.orderProduct,order.dataset.orderType||shopType,selected?.id||selectedCompanyShopId)}"),'Each product button directly opens its exact marketplace product');
 assert.ok(html.includes("order.disabled=isPrimary?(!s.shopRented||!!s.shopConversion):!selected"),'Secondary shop product buttons are enabled');
 assert.ok(html.includes("supplierTargetShopId=targetShop.primary?null:targetShop.id"),'Marketplace purchases retain the selected branch as their target');
 assert.ok(html.includes('destinationShopId:branch?.id||null'),'Branch supplier orders keep the destination shop id');
@@ -125,4 +125,4 @@ vm.createContext(branchTargetCtx);vm.runInContext(getFunction('producerTarget'),
 const branchTarget=vm.runInContext('producerTarget()',branchTargetCtx);
 assert.equal(branchTarget.branch,true,'Selected secondary shop can receive a supplier order');
 assert.equal(branchTarget.room,55,'Branch order availability uses its own capacity and pending deliveries');
-console.log('1.1.10 branch product ordering, full shop catalogs, product routing, and Android asset checks passed');
+console.log('1.1.11 branch product ordering, full shop catalogs, product routing, and Android asset checks passed');
