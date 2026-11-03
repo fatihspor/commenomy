@@ -1,7 +1,7 @@
 const fs=require('node:fs');
 const vm=require('node:vm');
 const assert=require('node:assert/strict');
-// Regression checks for the 1.1.12 shop routing and street vacancy fixes.
+// Regression checks for 1.1.12 marketplace SKU routing, sector selection, and live street vacancy.
 const html=fs.readFileSync('index.html','utf8');
 assert.ok(html.includes("1:{rent:180,traffic:2.0,willing:1.5,total:4,occupied:3,area:20}"),'First street has one vacant small shop for grocery testing');
 assert.ok(html.includes("type&&type!=='warehouse'?type:(s.rentalSector||s.shopType)"),'Rental sector follows the current selector value');
