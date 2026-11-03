@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const html=fs.readFileSync('index.html','utf8');
 const asset=fs.readFileSync('app/src/main/assets/index.html','utf8');
 assert.equal(html,asset,'Android assets must match');
-assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+38[\s\S]*versionName\s+'1\.1\.22'/,'APK version must be 1.1.21');
+assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+38[\s\S]*versionName\s+'1\.1\.22'/,'APK version must be 1.1.22');
 assert.ok(html.includes("money(x.unitDelivered)+'/'+unit+'</strong><strong class=\"producer-order-total\">'+(valid?'Toplam tutar: '+money(quote.total)"),'Supplier price shows one currency and a quantity-based amount');
 assert.ok(html.includes("if(orderTotal)orderTotal.textContent=valid?'Toplam tutar: '+money(quote.total):'Toplam tutar: miktar girince hesaplanır'"),'Supplier amount line updates with quantity changes');
 assert.ok(html.includes("const id=input.dataset.producerQty;producerOrderQuantities[id]=input.value"),'Supplier quantity remains visible when it exceeds stock or capacity so warning colors can appear');
@@ -123,6 +123,6 @@ vm.createContext(branchTargetCtx);vm.runInContext(getFunction('producerTarget'),
 const branchTarget=vm.runInContext('producerTarget()',branchTargetCtx);
 assert.equal(branchTarget.branch,true,'Selected secondary shop can receive a supplier order');
 assert.equal(branchTarget.room,55,'Branch order availability uses its own capacity and pending deliveries');
-const vacancyCtx={s:{day:1,virtualCompanies:[],shopRented:false,additionalShops:[]},streets:{4:{total:15,occupied:14}},shopLocations(){return this.s.additionalShops},shopsOnStreet(id){return this.shopLocations().filter(shop=>Number(shop.street)===Number(id))}};vm.createContext(vacancyCtx);vm.runInContext(getFunction('streetVacancy'),vacancyCtx);assert.equal(vm.runInContext('streetVacancy(4)',vacancyCtx),1,'Street shows its single available shop before rental');vacancyCtx.s.additionalShops.push({id:'regression-branch',street:4,type:'market'});assert.equal(vm.runInContext('streetVacancy(4)',vacancyCtx),0,'Street vacancy decreases immediately after a rental even when background occupancy is at its cap');
+const vacancyCtx={s:{day:1,virtualCompanies:[],shopRented:false,additionalShops:[]},streets:{4:{total:15,occupied:14}},shopLocations(){return vacancyCtx.s.additionalShops},shopsOnStreet(id){return vacancyCtx.s.additionalShops.filter(shop=>Number(shop.street)===Number(id))}};vm.createContext(vacancyCtx);vm.runInContext(getFunction('streetVacancy'),vacancyCtx);assert.equal(vm.runInContext('streetVacancy(4)',vacancyCtx),1,'Street shows its single available shop before rental');vacancyCtx.s.additionalShops.push({id:'regression-branch',street:4,type:'market'});assert.equal(vm.runInContext('streetVacancy(4)',vacancyCtx),0,'Street vacancy decreases immediately after a rental even when background occupancy is at its cap');
 console.log('1.1.22 product routing, shop catalog, street vacancy, and Android asset checks passed');
 
