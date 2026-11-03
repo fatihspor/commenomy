@@ -35,7 +35,7 @@ assert.ok(!html.includes('.market-supplier-controls{display:none!important}'),'P
 assert.ok(html.includes('#market.market-purchase-view .market-side-nav{display:none}'),'Supplier purchase view uses the full mobile width');
 assert.ok(html.includes('grid-template-areas:"head buy" "meta buy" "delivery buy" "total total"'),'Mobile supplier offers have separate readable content rows');
 assert.ok(html.includes("buyFromProducers(id,qty)"),'Supplier Al buttons call the purchase handler');
-assert.ok(html.includes("openProductSupplierMarket(order.dataset.orderProduct,order.dataset.orderType||shopType,selected?.id||selectedCompanyShopId)"),'Company product button routes its exact product and sector');
+assert.ok(html.includes("openProductSupplierMarket(p.id,selected?.type||shopType,selected?.id||selectedCompanyShopId||'main')"),'Company product button routes its exact product and sector');
 assert.ok(html.indexOf("showTab('market');renderShopCatalog()")<html.indexOf("renderProducerOrderLocation();$('producerOrderCard').classList.remove('hidden')"),'Marketplace opens before supplier offers render');
 assert.ok(html.includes("order.onclick=event=>{event.preventDefault();event.stopPropagation();openProductSupplierMarket(p.id,selected?.type||shopType,selected?.id||selectedCompanyShopId||'main')}"),'Each product button directly opens its exact marketplace product and shop');
 assert.ok(html.includes("order.disabled=isPrimary?(!s.shopRented||!!s.shopConversion):!selected"),'Secondary shop product buttons are enabled');
