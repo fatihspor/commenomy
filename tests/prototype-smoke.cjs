@@ -4,10 +4,12 @@ const assert=require('node:assert/strict');
 const html=fs.readFileSync('index.html','utf8');
 const asset=fs.readFileSync('app/src/main/assets/index.html','utf8');
 assert.equal(html,asset,'Android assets must match');
-assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+28[\s\S]*versionName\s+'1\.1\.12'/,'APK version must be 1.1.12');
+assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+34[\s\S]*versionName\s+'1\.1\.18'/,'APK version must be 1.1.18');
 assert.ok(html.includes("money(x.unitDelivered)+'/'+unit+'</strong><strong class=\"producer-order-total\">'+(valid?'Toplam tutar: '+money(quote.total)"),'Supplier price shows one currency and a quantity-based amount');
 assert.ok(html.includes("if(orderTotal)orderTotal.textContent=valid?'Toplam tutar: '+money(quote.total):'Toplam tutar: miktar girince hesaplanır'"),'Supplier amount line updates with quantity changes');
-assert.ok(html.includes("const max=Number(input.max)||0,qty=Number(input.value);if(Number.isInteger(qty)&&qty>max)input.value=String(max);const id=input.dataset.producerQty;producerOrderQuantities[id]=input.value"),'Supplier quantity input is clamped to available stock and capacity');
+assert.ok(html.includes("const id=input.dataset.producerQty;producerOrderQuantities[id]=input.value"),'Supplier quantity remains visible when it exceeds stock or capacity so warning colors can appear');
+assert.ok(html.includes('saleAmount.readOnly=false;')&&html.includes('minus.disabled=false;')&&html.includes('plus.disabled=false;'),'Every shop can edit its catalog prices with the stepper');
+assert.ok(html.includes('shop.shopPrices=shop.shopPrices||{};prices=shop.shopPrices;prices[id]=value'),'Branch price changes are stored per shop');
 assert.ok(html.includes('demand=Math.max(0,s.demand*street.traffic)')&&html.includes('Math.min(limit,demand*scores[0]/total)'),'Daily sales preserve fractional demand instead of flooring it to zero');
 assert.ok(html.includes("forecast.innerHTML='<small>Tahmini günlük satış</small><b>'+salesQuantity(daily)+' '+p.unit+'</b>'"),'Catalog displays fractional daily unit estimates in Turkish format');
 assert.ok(html.includes('salesAccruals[p.id]'),'Virtual competitors accumulate fractional sales and eventually sell whole units');
@@ -35,7 +37,7 @@ assert.ok(html.indexOf("showTab('market');renderShopCatalog()")<html.indexOf("re
 assert.ok(html.includes("order.disabled=isPrimary?(!s.shopRented||!!s.shopConversion):!selected"),'Secondary shop product buttons are enabled');
 assert.ok(html.includes("supplierTargetShopId=targetShop.primary?null:targetShop.id"),'Marketplace purchases retain the selected branch as their target');
 assert.ok(html.includes('destinationShopId:branch?.id||null'),'Branch supplier orders keep the destination shop id');
-assert.ok(html.includes("marketViewProductId=productId;marketBrowseType=type;producerOfferPage=0"),'Product selection and sector are carried to the marketplace');
+assert.ok(html.includes("marketBrowseType=type;marketViewProductId=productId;supplierMarketProductId=productId"),'Product selection and sector are carried to the marketplace');
 assert.ok(html.includes("placeholder=\"Miktar gir\" data-producer-qty="),'Supplier quantity starts blank');
 const getFunction=(name)=>{const re=new RegExp('function '+name+'\\([^\\n]*?\\n?');const i=html.indexOf('function '+name+'(');assert.notEqual(i,-1,name);let depth=0,opened=false;for(let p=i;p<html.length;p++){if(html[p]==='{'){depth++;opened=true}else if(html[p]==='}'&&opened&&--depth===0)return html.slice(i,p+1)}throw new Error(name+' body not closed')};
 const retailCtx={s:{shopRented:true,shopConversion:null,shopStorageUse:'retail',shopType:'electronics',shopProduct:'electronics_charger',shopStocks:{electronics_charger:13},shopStock:13,shopAvgCosts:{electronics_charger:12.11},stockProductId:null,stock:0,pendingDeliveries:[],households:30,street:5,demand:0,virtualCompanies:[]},workforceData:()=>({total:30}),productFor:()=>({id:'electronics_charger',price:16,cost:8,demandMultiplier:1,unit:'adet'}),shopAverageCost:()=>12.11,streets:{1:{traffic:2,willing:1.5},5:{traffic:.7,willing:.85}},rivals:()=>[{id:'npc',price:16.32,stock:20,quality:1.08,trust:1.04,street:5}],$:()=>({value:'5'})};
@@ -83,7 +85,7 @@ const routeCtx={
   productCatalog:{market:[],grocery:[],bakery:[],building:[{id:'building_cement',item:'Çimento',price:8,unit:'torba',cost:4},brick],clothing:[],electronics:[]},
   shopTypeMeta:{market:{label:'Market',icon:'🛒'},grocery:{label:'Bakkal',icon:'🏪'},bakery:{label:'Fırın',icon:'🥖'},building:{label:'Nalbur',icon:'🛠️'},clothing:{label:'Giyim',icon:'👕'},electronics:{label:'Elektronik',icon:'🔌'}},
   productIcons:{building_brick:'📦'},
-  selectedCompanyShopId:'main',
+  selectedCompanyShopId:'main',supplierTargetShopId:null,supplierMarketProductId:null,marketBrowseType:null,marketViewProductId:null,producerOrderQuantities:{},producerOfferPage:0,
   shopLocations(){return[{id:'main',name:'Fatih 1',type:routeCtx.s.shopType,street:5,primary:true}]},
   $:routeEl,
   document:{createElement:tag=>new TestElement(tag),querySelectorAll:()=>[]},
