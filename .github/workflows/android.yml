@@ -74,17 +74,8 @@ jobs:
             timeout 30s adb shell pm path com.commenomy.game
             timeout 30s adb logcat -c
             timeout 60s adb shell am start -n com.commenomy.game/.MainActivity
-            page_ready=false
-            for attempt in $(seq 1 60); do
-              timeout 15s adb logcat -d -s CommenomyWeb:I > commenomy-webview.txt
-              if grep -Fq 'Page load finished:' commenomy-webview.txt; then
-                page_ready=true
-                break
-              fi
-              timeout 30s adb shell pidof com.commenomy.game | grep -Eq '[0-9]+'
-              sleep 2
-            done
-            test "$page_ready" = true
+            timeout 120s sh -c 'until adb logcat -d -s CommenomyWeb:I | grep -Fq "Page load finished:"; do adb shell pidof com.commenomy.game | grep -Eq "[0-9]+" || exit 1; sleep 2; done'
+            timeout 30s adb logcat -d -s CommenomyWeb:I > commenomy-webview.txt
             grep -F 'Page load finished:' commenomy-webview.txt
             timeout 30s adb shell pidof com.commenomy.game | grep -Eq '[0-9]+'
             timeout 30s adb shell dumpsys activity activities | grep -E 'mResumedActivity|topResumedActivity|ResumedActivity' | grep -F 'com.commenomy.game'
@@ -93,6 +84,7 @@ jobs:
             file commenomy-launch.png | grep -F "PNG image data"
             timeout 30s adb shell logcat -d -v brief > commenomy-logcat.txt
             grep -F 'Page load finished:' commenomy-logcat.txt
+            ! grep -Fq 'Process: com.commenomy.game' commenomy-logcat.txt
             ! grep -Fq 'Process: com.commenomy.game' commenomy-logcat.txt
 
       - name: Upload emulator launch screenshot
