@@ -37,6 +37,7 @@ ensureVirtualFamilies(); ensureVirtualCompanies();
 this.settle=(now)=>settleVirtualFamilyShopping(now);
 this.supplyPrice=()=>familySellerOptions(familyBasket.find(r=>r.id==='bakery_bread'),familySku('bakery_bread'))[0].price;
 this.basketCpi=()=>familyInflationRate();`, context);
+assert.equal(vm.runInContext('goods.manav.shop', context), 'Manav', 'Manav is a registered shop sector');
 const now = Date.now();
 context.s.familyShoppingLastAt = now - 8 * 86_400_000;
 const unitsBought = context.settle(now);
