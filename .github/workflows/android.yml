@@ -61,12 +61,12 @@ jobs:
         timeout-minutes: 15
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 35
+          api-level: 30
           arch: x86_64
           disable-animations: true
-          profile: pixel_6
-          cores: 4
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -memory 4096
+          profile: pixel_2
+          cores: 2
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -memory 2048
           script: |
             timeout 30s adb shell settings put global package_verifier_enable 0
             timeout 30s adb shell settings put global verifier_verify_adb_installs 0
