@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const html=fs.readFileSync('index.html','utf8');
 const asset=fs.readFileSync('app/src/main/assets/index.html','utf8');
 assert.equal(html,asset,'Android assets must match');
-assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\\s+35[\\s\\S]*versionName\\s+'1\\.1\\.19'/,'APK version must be 1.1.18');
+assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+35[\s\S]*versionName\s+'1\.1\.19'/,'APK version must be 1.1.19');
 assert.ok(html.includes("money(x.unitDelivered)+'/'+unit+'</strong><strong class=\"producer-order-total\">'+(valid?'Toplam tutar: '+money(quote.total)"),'Supplier price shows one currency and a quantity-based amount');
 assert.ok(html.includes("if(orderTotal)orderTotal.textContent=valid?'Toplam tutar: '+money(quote.total):'Toplam tutar: miktar girince hesaplanır'"),'Supplier amount line updates with quantity changes');
 assert.ok(html.includes("const id=input.dataset.producerQty;producerOrderQuantities[id]=input.value"),'Supplier quantity remains visible when it exceeds stock or capacity so warning colors can appear');
