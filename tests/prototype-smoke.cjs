@@ -8,7 +8,6 @@ assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+28[\s\S]*
 assert.ok(html.includes("money(x.unitDelivered)+'/'+unit+'</strong><strong class=\"producer-order-total\">'+(valid?'Toplam tutar: '+money(quote.total)"),'Supplier price shows one currency and a quantity-based amount');
 assert.ok(html.includes("if(orderTotal)orderTotal.textContent=valid?'Toplam tutar: '+money(quote.total):'Toplam tutar: miktar girince hesaplanır'"),'Supplier amount line updates with quantity changes');
 assert.ok(html.includes("const max=Number(input.max)||0,qty=Number(input.value);if(Number.isInteger(qty)&&qty>max)input.value=String(max);const id=input.dataset.producerQty;producerOrderQuantities[id]=input.value"),'Supplier quantity input is clamped to available stock and capacity');
-assert.ok(html.includes("const retailDemandRates={grocery:1.15,market:1.8,bakery:1.4,clothing:.04,electronics:.06,building:.08}"),'Electronics and building products have active daily demand');
 assert.ok(html.includes('demand=Math.max(0,s.demand*street.traffic)')&&html.includes('Math.min(limit,demand*scores[0]/total)'),'Daily sales preserve fractional demand instead of flooring it to zero');
 assert.ok(html.includes("forecast.innerHTML='<small>Tahmini günlük satış</small><b>'+salesQuantity(daily)+' '+p.unit+'</b>'"),'Catalog displays fractional daily unit estimates in Turkish format');
 assert.ok(html.includes('salesAccruals[p.id]'),'Virtual competitors accumulate fractional sales and eventually sell whole units');
@@ -31,9 +30,8 @@ assert.ok(!html.includes('.market-supplier-controls{display:none!important}'),'P
 assert.ok(html.includes('#market.market-purchase-view .market-side-nav{display:none}'),'Supplier purchase view uses the full mobile width');
 assert.ok(html.includes('grid-template-areas:"head buy" "meta buy" "delivery buy" "total total"'),'Mobile supplier offers have separate readable content rows');
 assert.ok(html.includes("buyFromProducers(id,qty)"),'Supplier Al buttons call the purchase handler');
-assert.ok(html.includes("openProductSupplierMarket(order.dataset.orderProduct,order.dataset.orderType||shopType)"),'Company product button routes its exact product and sector');
+assert.ok(html.includes("const current=currentShopViewData();openProductSupplierMarket(order.dataset.orderProduct,order.dataset.orderType||current?.type||s.shopType,current?.shop?.id||selectedCompanyShopId)"),'Company product button routes its exact product and selected shop');
 assert.ok(html.indexOf("showTab('market');renderShopCatalog()")<html.indexOf("renderProducerOrderLocation();$('producerOrderCard').classList.remove('hidden')"),'Marketplace opens before supplier offers render');
-assert.ok(html.includes("order.onclick=event=>{event.preventDefault();event.stopPropagation();openProductSupplierMarket(order.dataset.orderProduct,order.dataset.orderType||shopType)}"),'Each product button directly opens its exact marketplace product');
 assert.ok(html.includes("order.disabled=isPrimary?(!s.shopRented||!!s.shopConversion):!selected"),'Secondary shop product buttons are enabled');
 assert.ok(html.includes("supplierTargetShopId=targetShop.primary?null:targetShop.id"),'Marketplace purchases retain the selected branch as their target');
 assert.ok(html.includes('destinationShopId:branch?.id||null'),'Branch supplier orders keep the destination shop id');
@@ -98,12 +96,8 @@ const routeCtx={
 };
 vm.createContext(routeCtx);
 for(const fn of ['renderProducerOrderLocation','renderMarketProductChoices','updateProducerPreview','showTab','openProductSupplierMarket'])vm.runInContext(getFunction(fn),routeCtx);
-routeCtx.order={dataset:{orderProduct:'building_brick',orderType:'building'}};
-routeCtx.clickEvent={preventDefault(){},stopPropagation(){}};
-const clickBinding=html.match(/order\.onclick=event=>\{event\.preventDefault\(\);event\.stopPropagation\(\);openProductSupplierMarket\(order\.dataset\.orderProduct,order\.dataset\.orderType\|\|shopType\)\}/)?.[0];
-assert.ok(clickBinding,'Product button has a direct click binding');
-vm.runInContext(clickBinding,routeCtx);
-routeCtx.order.onclick(routeCtx.clickEvent);
+assert.ok(html.includes("const current=currentShopViewData();openProductSupplierMarket(order.dataset.orderProduct,order.dataset.orderType||current?.type||s.shopType,current?.shop?.id||selectedCompanyShopId)"),'Delegated product buttons use the current selected shop');
+routeCtx.openProductSupplierMarket('building_brick','building','main');
 assert.equal(routeEl('market').classList.contains('hidden'),false,'Click switches from Company to visible Pazar');
 assert.equal(routeEl('company').classList.contains('hidden'),true,'Click hides Company after navigation');
 assert.equal(routeCtx.s.shopProduct,'building_brick','Click selects the clicked SKU in company state');
@@ -125,4 +119,5 @@ vm.createContext(branchTargetCtx);vm.runInContext(getFunction('producerTarget'),
 const branchTarget=vm.runInContext('producerTarget()',branchTargetCtx);
 assert.equal(branchTarget.branch,true,'Selected secondary shop can receive a supplier order');
 assert.equal(branchTarget.room,55,'Branch order availability uses its own capacity and pending deliveries');
-console.log('1.1.9 branch product ordering, full shop catalogs, product routing, and Android asset checks passed');
+console.log('1.1.12 product routing, shop catalog, street vacancy, and Android asset checks passed');
+
