@@ -12,6 +12,11 @@ assert.ok(html.includes("const retailDemandRates={grocery:1.15,market:1.8,bakery
 assert.ok(html.includes('demand=Math.max(0,s.demand*street.traffic)')&&html.includes('Math.min(limit,demand*scores[0]/total)'),'Daily sales preserve fractional demand instead of flooring it to zero');
 assert.ok(html.includes("forecast.innerHTML='<small>Tahmini günlük satış</small><b>'+salesQuantity(daily)+' '+p.unit+'</b>'"),'Catalog displays fractional daily unit estimates in Turkish format');
 assert.ok(html.includes('salesAccruals[p.id]'),'Virtual competitors accumulate fractional sales and eventually sell whole units');
+assert.ok(html.includes('function citywideProductStock(type,id)'),'Citywide product stock includes competitors, shop, warehouse, and pending orders');
+assert.ok(html.includes('Math.log10(30/Math.max(.1,coverageDays))'),'Prices respond to citywide stock coverage');
+assert.ok(html.includes('price:virtualMarketPrice(c,type,product)'),'Displayed competitor prices use city stock pressure');
+assert.ok(html.includes('const price=virtualMarketPrice(c,type,p)'),'Competitors transact at the prices shown in the market');
+
 assert.ok(html.includes('rate*elapsed/gameDayDurationMs()'),'Actual sale timing uses the same game-day duration as forecasts');
 const js=html.match(/<script>([\s\S]*?)<\/script>/i)?.[1];
 assert.ok(js,'App script exists');
@@ -32,6 +37,24 @@ assert.ok(html.includes("order.onclick=event=>{event.preventDefault();event.stop
 assert.ok(html.includes("marketViewProductId=productId;producerOfferPage=0;s.shopProduct=productId"),'Product selection is carried to the marketplace');
 assert.ok(html.includes("placeholder=\"Miktar gir\" data-producer-qty="),'Supplier quantity starts blank');
 const getFunction=(name)=>{const re=new RegExp('function '+name+'\\([^\\n]*?\\n?');const i=html.indexOf('function '+name+'(');assert.notEqual(i,-1,name);let depth=0,opened=false;for(let p=i;p<html.length;p++){if(html[p]==='{'){depth++;opened=true}else if(html[p]==='}'&&opened&&--depth===0)return html.slice(i,p+1)}throw new Error(name+' body not closed')};
+const retailCtx={s:{shopRented:true,shopConversion:null,shopStorageUse:'retail',shopType:'electronics',shopProduct:'electronics_charger',shopStocks:{electronics_charger:13},shopStock:13,shopAvgCosts:{electronics_charger:12.11},stockProductId:null,stock:0,pendingDeliveries:[],households:30,street:5,demand:0,virtualCompanies:[]},workforceData:()=>({total:30}),productFor:()=>({id:'electronics_charger',price:16,cost:8,demandMultiplier:1,unit:'adet'}),shopAverageCost:()=>12.11,streets:{1:{traffic:2,willing:1.5},5:{traffic:.7,willing:.85}},rivals:()=>[{id:'npc',price:16.32,stock:20,quality:1.08,trust:1.04,street:5}],$:()=>({value:'5'})};
+vm.createContext(retailCtx);
+vm.runInContext(html.match(/const retailDemandRates=\{[^;]+;/)[0],retailCtx);
+for(const fn of ['retailDailyDemand','citywideProductStock','marketSupplyPriceFactor','virtualMarketPrice','marketAllocation','forecastProductDailySales'])vm.runInContext(getFunction(fn),retailCtx);
+retailCtx.s.virtualCompanies=[{active:true,types:['electronics'],inventory:{electronics_charger:1000},priceFactor:1}];
+const price1000=vm.runInContext("virtualMarketPrice(s.virtualCompanies[0],'electronics',productFor('electronics','electronics_charger'))",retailCtx);
+retailCtx.s.virtualCompanies[0].inventory.electronics_charger=10000;
+const price10000=vm.runInContext("virtualMarketPrice(s.virtualCompanies[0],'electronics',productFor('electronics','electronics_charger'))",retailCtx);
+assert.ok(price1000>price10000,'Ten times more city stock lowers virtual competitors’ prices');
+retailCtx.rivals=()=>[{id:'npc',price:price10000,stock:20,quality:1.08,trust:1.04,street:5}];
+const backStreetSales=vm.runInContext("forecastProductDailySales('electronics_charger',18.11)",retailCtx);
+retailCtx.s.street=1;
+const mainStreetSales=vm.runInContext("forecastProductDailySales('electronics_charger',18.11)",retailCtx);
+retailCtx.s.street=5;
+const lowerPriceSales=vm.runInContext("forecastProductDailySales('electronics_charger',16)",retailCtx);
+assert.ok(backStreetSales>0,'Back streets retain daily sales');
+assert.ok(mainStreetSales>backStreetSales,'Main street traffic creates a sales advantage');
+assert.ok(lowerPriceSales>backStreetSales,'A more competitive price increases the daily sales estimate');
 const ctx={s:{shopType:'building',shopStocks:{},stockProductId:null,stock:0,shopAvgCosts:{},pendingDeliveries:[]},productFor:()=>({cost:4})};
 vm.createContext(ctx);
 vm.runInContext(getFunction('shopAverageCost'),ctx);
