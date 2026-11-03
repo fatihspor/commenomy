@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const html=fs.readFileSync('index.html','utf8');
 const asset=fs.readFileSync('app/src/main/assets/index.html','utf8');
 assert.equal(html,asset,'Android assets must match');
-assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+24[\s\S]*versionName\s+'1\.1\.8'/,'APK version must be 1.1.8');
+assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+25[\s\S]*versionName\s+'1\.1\.9'/,'APK version must be 1.1.9');
 assert.ok(html.includes("money(x.unitDelivered)+'/'+unit+'</strong><strong class=\"producer-order-total\">'+(valid?'Toplam tutar: '+money(quote.total)"),'Supplier price shows one currency and a quantity-based amount');
 assert.ok(html.includes("if(orderTotal)orderTotal.textContent=valid?'Toplam tutar: '+money(quote.total):'Toplam tutar: miktar girince hesaplanır'"),'Supplier amount line updates with quantity changes');
 assert.ok(html.includes("const max=Number(input.max)||0,qty=Number(input.value);if(Number.isInteger(qty)&&qty>max)input.value=String(max);const id=input.dataset.producerQty;producerOrderQuantities[id]=input.value"),'Supplier quantity input is clamped to available stock and capacity');
@@ -32,9 +32,12 @@ assert.ok(html.includes('#market.market-purchase-view .market-side-nav{display:n
 assert.ok(html.includes('grid-template-areas:"head buy" "meta buy" "delivery buy" "total total"'),'Mobile supplier offers have separate readable content rows');
 assert.ok(html.includes("buyFromProducers(id,qty)"),'Supplier Al buttons call the purchase handler');
 assert.ok(html.includes("openProductSupplierMarket(order.dataset.orderProduct,order.dataset.orderType||shopType)"),'Company product button routes its exact product and sector');
-assert.ok(html.indexOf("showTab('market');persist();renderShopCatalog()")<html.indexOf("renderProducerOrderLocation();$('producerOrderCard').classList.remove('hidden')"),'Marketplace opens before the company view is persisted');
+assert.ok(html.indexOf("showTab('market');renderShopCatalog()")<html.indexOf("renderProducerOrderLocation();$('producerOrderCard').classList.remove('hidden')"),'Marketplace opens before supplier offers render');
 assert.ok(html.includes("order.onclick=event=>{event.preventDefault();event.stopPropagation();openProductSupplierMarket(order.dataset.orderProduct,order.dataset.orderType||shopType)}"),'Each product button directly opens its exact marketplace product');
-assert.ok(html.includes("marketViewProductId=productId;producerOfferPage=0;s.shopProduct=productId"),'Product selection is carried to the marketplace');
+assert.ok(html.includes("order.disabled=isPrimary?(!s.shopRented||!!s.shopConversion):!selected"),'Secondary shop product buttons are enabled');
+assert.ok(html.includes("supplierTargetShopId=targetShop.primary?null:targetShop.id"),'Marketplace purchases retain the selected branch as their target');
+assert.ok(html.includes('destinationShopId:branch?.id||null'),'Branch supplier orders keep the destination shop id');
+assert.ok(html.includes("marketViewProductId=productId;marketBrowseType=type;producerOfferPage=0"),'Product selection and sector are carried to the marketplace');
 assert.ok(html.includes("placeholder=\"Miktar gir\" data-producer-qty="),'Supplier quantity starts blank');
 const getFunction=(name)=>{const re=new RegExp('function '+name+'\\([^\\n]*?\\n?');const i=html.indexOf('function '+name+'(');assert.notEqual(i,-1,name);let depth=0,opened=false;for(let p=i;p<html.length;p++){if(html[p]==='{'){depth++;opened=true}else if(html[p]==='}'&&opened&&--depth===0)return html.slice(i,p+1)}throw new Error(name+' body not closed')};
 const retailCtx={s:{shopRented:true,shopConversion:null,shopStorageUse:'retail',shopType:'electronics',shopProduct:'electronics_charger',shopStocks:{electronics_charger:13},shopStock:13,shopAvgCosts:{electronics_charger:12.11},stockProductId:null,stock:0,pendingDeliveries:[],households:30,street:5,demand:0,virtualCompanies:[]},workforceData:()=>({total:30}),productFor:()=>({id:'electronics_charger',price:16,cost:8,demandMultiplier:1,unit:'adet'}),shopAverageCost:()=>12.11,streets:{1:{traffic:2,willing:1.5},5:{traffic:.7,willing:.85}},rivals:()=>[{id:'npc',price:16.32,stock:20,quality:1.08,trust:1.04,street:5}],$:()=>({value:'5'})};
@@ -82,6 +85,8 @@ const routeCtx={
   productCatalog:{market:[],grocery:[],bakery:[],building:[{id:'building_cement',item:'Çimento',price:8,unit:'torba',cost:4},brick],clothing:[],electronics:[]},
   shopTypeMeta:{market:{label:'Market',icon:'🛒'},grocery:{label:'Bakkal',icon:'🏪'},bakery:{label:'Fırın',icon:'🥖'},building:{label:'Nalbur',icon:'🛠️'},clothing:{label:'Giyim',icon:'👕'},electronics:{label:'Elektronik',icon:'🔌'}},
   productIcons:{building_brick:'📦'},
+  selectedCompanyShopId:'main',
+  shopLocations(){return[{id:'main',name:'Fatih 1',type:routeCtx.s.shopType,street:5,primary:true}]},
   $:routeEl,
   document:{createElement:tag=>new TestElement(tag),querySelectorAll:()=>[]},
   window:{},
@@ -108,4 +113,16 @@ assert.equal(routeEl('producerOrderTitle').textContent,'Tedarikçi Firmalar • 
 assert.equal(routeEl('marketProductChoices').children[0].children[1].children[0].textContent,'Tuğla','The visible Pazar card is Tuğla');
 assert.ok(quoteRequests.some(([,type,productId])=>type==='building'&&productId==='building_brick'),'Supplier quotes are loaded for Tuğla');
 assert.ok(routeEl('producerOffers').innerHTML.includes('Trakya Yapı Malzemeleri Üreticisi'),'Supplier list is rendered');
-console.log('1.1.8 full shop catalogs, shop switching, product routing, and Android asset checks passed');
+const marketTomato={id:'market_tomato',item:'Domates',price:2,unit:'kg',cost:1.1};
+const marketBranch={id:'branch-market',name:'Fatih 2',type:'market',street:5,productId:'market_tomato',shopStock:0,shopStocks:{},shopAvgCosts:{}};
+routeCtx.productCatalog.market=[marketTomato];routeCtx.s.additionalShops=[marketBranch];routeCtx.shopLocations=()=>[{id:'main',name:'Fatih 1',type:'building',street:5,primary:true},marketBranch];routeCtx.selectedCompanyShopId='branch-market';routeCtx.producerTarget=()=>({destination:'shop',room:60,shop:marketBranch,branch:true});
+routeCtx.openProductSupplierMarket('market_tomato','market');
+assert.equal(routeCtx.supplierTargetShopId,'branch-market','Branch product purchase keeps Fatih 2 as the destination');
+assert.equal(routeCtx.s.shopProduct,'building_brick','Opening a branch purchase does not change Fatih 1\'s product');
+assert.ok(quoteRequests.some(([,type,productId])=>type==='market'&&productId==='market_tomato'),'Supplier quotes load for the selected branch product');
+const branchTargetCtx={s:{additionalShops:[marketBranch]},supplierTargetShopId:'branch-market',marketViewProductId:'market_tomato',marketBrowseType:'market',ensureShopInventory(){},pendingOrderQty:()=>5,shopCapacity:()=>60};
+vm.createContext(branchTargetCtx);vm.runInContext(getFunction('producerTarget'),branchTargetCtx);
+const branchTarget=vm.runInContext('producerTarget()',branchTargetCtx);
+assert.equal(branchTarget.branch,true,'Selected secondary shop can receive a supplier order');
+assert.equal(branchTarget.room,55,'Branch order availability uses its own capacity and pending deliveries');
+console.log('1.1.9 branch product ordering, full shop catalogs, product routing, and Android asset checks passed');
