@@ -105,7 +105,7 @@ vm.createContext(routeCtx);
 for(const fn of ['renderProducerOrderLocation','renderMarketProductChoices','updateProducerPreview','showTab','openProductSupplierMarket'])vm.runInContext(getFunction(fn),routeCtx);
 routeCtx.order={dataset:{orderProduct:'building_brick',orderType:'building'}};
 routeCtx.clickEvent={preventDefault(){},stopPropagation(){}};
-const clickBinding=html.match(/order\.onclick=event=>\{event\.preventDefault\(\);event\.stopPropagation\(\);openProductSupplierMarket\(order\.dataset\.orderProduct,order\.dataset\.orderType\|\|shopType,selected\?\.id\|\|selectedCompanyShopId\)\}/)?.[0];
+const clickBinding=html.match(/order\.onclick=event=>\{event\.preventDefault\(\);event\.stopPropagation\(\);openProductSupplierMarket\(p\.id,selected\?\.type\|\|shopType,selected\?\.id\|\|selectedCompanyShopId\|\|'main'\)\}/)?.[0];
 assert.ok(clickBinding,'Product button has a direct click binding');
 vm.runInContext(clickBinding,routeCtx);
 routeCtx.order.onclick(routeCtx.clickEvent);
