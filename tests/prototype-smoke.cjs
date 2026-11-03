@@ -85,6 +85,7 @@ const routeCtx={
   productCatalog:{market:[],grocery:[],bakery:[],building:[{id:'building_cement',item:'Çimento',price:8,unit:'torba',cost:4},brick],clothing:[],electronics:[]},
   shopTypeMeta:{market:{label:'Market',icon:'🛒'},grocery:{label:'Bakkal',icon:'🏪'},bakery:{label:'Fırın',icon:'🥖'},building:{label:'Nalbur',icon:'🛠️'},clothing:{label:'Giyim',icon:'👕'},electronics:{label:'Elektronik',icon:'🔌'}},
   productIcons:{building_brick:'📦'},
+  selected:{id:'main'},
   selectedCompanyShopId:'main',
   shopLocations(){return[{id:'main',name:'Fatih 1',type:routeCtx.s.shopType,street:5,primary:true}]},
   $:routeEl,
