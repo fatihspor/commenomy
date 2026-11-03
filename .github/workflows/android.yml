@@ -1,7 +1,7 @@
 name: Commenomy Android Beta
 on:
   push:
-    branches: [main, feature/mine-company-card-no-apk]
+    branches: [main, feature/mine-company-card-no-apk, work/1.1.3-conversation-spec]
   workflow_dispatch:
 concurrency:
   group: commenomy-android-beta-${{ github.sha }}
@@ -12,7 +12,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - name: Validate prototype and Android assets
+      - name: Validate family simulation and Android assets
         run: node tests/prototype-smoke.cjs
       - uses: actions/setup-java@v4
         with:
@@ -53,10 +53,9 @@ jobs:
       - name: Upload validated APK
         uses: actions/upload-artifact@v4
         with:
-          name: Commenomy-Hizlandirilmis-Test-APK
+          name: Commenomy-v1.1.3-test-APK
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
-
       - name: Emulator installation smoke test
         timeout-minutes: 15
         uses: reactivecircus/android-emulator-runner@v2
@@ -85,8 +84,6 @@ jobs:
             timeout 30s adb shell logcat -d -v brief > commenomy-logcat.txt
             grep -F 'Page load finished:' commenomy-logcat.txt
             ! grep -Fq 'Process: com.commenomy.game' commenomy-logcat.txt
-            ! grep -Fq 'Process: com.commenomy.game' commenomy-logcat.txt
-
       - name: Upload emulator launch screenshot
         if: always()
         uses: actions/upload-artifact@v4

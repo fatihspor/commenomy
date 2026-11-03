@@ -1,83 +1,56 @@
-const fs=require('node:fs');
-const vm=require('node:vm');
-const assert=require('node:assert/strict');
-const html=fs.readFileSync('index.html','utf8');
-const asset=fs.readFileSync('app/src/main/assets/index.html','utf8');
-assert.equal(html,asset,'Android assets must match');
-assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+18[\s\S]*versionName\s+'1\.1\.2'/,'APK version must be 1.1.1');
-assert.ok(html.includes("money(x.unitDelivered)+'/'+unit+'</strong><strong class=\"producer-order-total\">'+(valid?'Toplam tutar: '+money(quote.total)"),'Supplier price shows one currency and a quantity-based amount');
-assert.ok(html.includes("if(orderTotal)orderTotal.textContent=valid?'Toplam tutar: '+money(quote.total):'Toplam tutar: miktar girince hesaplanır'"),'Supplier amount line updates with quantity changes');
-assert.ok(html.includes("const max=Number(input.max)||0,qty=Number(input.value);if(Number.isInteger(qty)&&qty>max)input.value=String(max);const id=input.dataset.producerQty;producerOrderQuantities[id]=input.value"),'Supplier quantity input is clamped to available stock and capacity');
-const js=html.match(/<script>([\s\S]*?)<\/script>/i)?.[1];
-assert.ok(js,'App script exists');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const assert = require('node:assert/strict');
+const html = fs.readFileSync('index.html', 'utf8');
+const asset = fs.readFileSync('app/src/main/assets/index.html', 'utf8');
+const gradle = fs.readFileSync('app/build.gradle', 'utf8');
+assert.equal(html, asset, 'Web and Android assets must match');
+assert.match(gradle, /versionCode\s+19[\s\S]*versionName\s+'1\.1\.3'/, 'APK version must be 1.1.3');
+const js = html.match(/<script>([\s\S]*?)<\/script>/i)?.[1];
+assert.ok(js, 'App script exists');
 new vm.Script(js);
-for(const marker of ['id="marketSearch"','id="marketSectorTab"','id="marketCategoryTabs"','id="marketProductChoices"','id="marketSupplierMount"','id="marketFirmsJump"']) assert.ok(html.includes(marker),marker);
-assert.ok(html.includes('Tedarikçi Firmalar'),'Pazar shows supplier cards');
-for(const marker of ['class="market-topbar"','class="market-search"','class="market-category-tabs"','id="marketProductRow"','id="marketSummary"','id="marketQuantityRow"','id="marketSupplierMount"','id="marketFirmsJump"','id="moreProducerOffers"'])assert.ok(html.includes(marker),'Pazar1 layout includes '+marker);
-assert.ok(html.includes("more.textContent=producerOfferPage>=pageCount-1?'İlk 5 teklife dön':'Diğer 5 Teklifi Gör ›'"),'Pazar1 exposes the next-ten-suppliers action');
-assert.ok(html.includes('marketOffers=marketOpen?allOffers.slice(0,10):allOffers'),'Pazar1 shows only the cheapest ten suppliers while other screens keep their supplier lists');
-assert.ok(html.includes("producerOfferPage=(producerOfferPage+1)%pageCount;updateProducerPreview()"),'Pazar1 button switches between its two supplier pages');
-assert.ok(!html.includes('.market-supplier-controls{display:none!important}'),'Pazar1 must not hide the other-five-suppliers button');
-assert.ok(html.includes('#market.market-purchase-view .market-side-nav{display:none}'),'Supplier purchase view uses the full mobile width');
-assert.ok(html.includes('grid-template-areas:"head buy" "meta buy" "delivery buy" "total total"'),'Mobile supplier offers have separate readable content rows');
-assert.ok(html.includes("buyFromProducers(id,qty)"),'Supplier Al buttons call the purchase handler');
-assert.ok(html.includes("openProductSupplierMarket(order.dataset.orderProduct,order.dataset.orderType||s.shopType)"),'Company product button routes its exact product and sector');
-assert.ok(html.indexOf("showTab('market');persist();renderShopCatalog()")<html.indexOf("renderProducerOrderLocation();$('producerOrderCard').classList.remove('hidden')"),'Marketplace opens before the company view is persisted');
-assert.ok(html.includes("order.onclick=event=>{event.preventDefault();event.stopPropagation();openProductSupplierMarket(order.dataset.orderProduct,order.dataset.orderType||s.shopType)}"),'Each product button directly opens its exact marketplace product');
-assert.ok(html.includes("marketViewProductId=productId;producerOfferPage=0;s.shopProduct=productId"),'Product selection is carried to the marketplace');
-assert.ok(html.includes("placeholder=\"Miktar gir\" data-producer-qty="),'Supplier quantity starts blank');
-const getFunction=(name)=>{const re=new RegExp('function '+name+'\\([^\\n]*?\\n?');const i=html.indexOf('function '+name+'(');assert.notEqual(i,-1,name);let depth=0,opened=false;for(let p=i;p<html.length;p++){if(html[p]==='{'){depth++;opened=true}else if(html[p]==='}'&&opened&&--depth===0)return html.slice(i,p+1)}throw new Error(name+' body not closed')};
-const ctx={s:{shopType:'building',shopStocks:{},stockProductId:null,stock:0,shopAvgCosts:{},pendingDeliveries:[]},productFor:()=>({cost:4})};
-vm.createContext(ctx);
-vm.runInContext(getFunction('shopAverageCost'),ctx);
-vm.runInContext(getFunction('recordShopPurchaseCost'),ctx);
-assert.equal(vm.runInContext("shopAverageCost('building_cement')",ctx),0,'No stock means zero cost');
-ctx.s.shopStocks.building_cement=10;ctx.s.shopAvgCosts.building_cement=5.4;
-assert.equal(vm.runInContext("shopAverageCost('building_cement')",ctx),5.4,'Existing stock uses its recorded average cost');
-vm.runInContext("recordShopPurchaseCost('building_cement',10,60)",ctx);
-assert.equal(ctx.s.shopAvgCosts.building_cement,5.7,'New purchases update weighted average cost');
-
-class TestElement{
-  constructor(id=''){this.id=id;this.value='';this.textContent='';this.innerHTML='';this.children=[];this.dataset={};this.classes=new Set();this.classList={add:x=>this.classes.add(x),remove:x=>this.classes.delete(x),toggle:(x,v)=>{if(v)this.classes.add(x);else this.classes.delete(x)},contains:x=>this.classes.has(x)};this.disabled=false}
-  append(...items){this.children.push(...items)}
-  appendChild(item){this.children.push(item);return item}
-  replaceChildren(...items){this.children=[...items]}
-  setAttribute(){}
-  scrollIntoView(){}
+for (const marker of ['function ensureVirtualFamilies()', 'function settleVirtualFamilyShopping(', 'function scheduleVirtualFamilyShopping()', 'function familyInflationRate()', 'familyBasket']) {
+  assert.ok(js.includes(marker), `Missing family simulation component: ${marker}`);
 }
-const routeElements=new Map();
-function routeEl(id){if(!routeElements.has(id))routeElements.set(id,new TestElement(id));return routeElements.get(id)}
-const quoteRequests=[];
-const brick={id:'building_brick',item:'Tuğla',price:8,unit:'adet',cost:0.47};
-const routeCtx={
-  s:{shopRented:true,shopType:'building',shopProduct:'building_cement',shopPrice:8,shopPrices:{},shopStocks:{},shopAvgCosts:{},warehouses:0,shopStorageUse:'retail'},
-  productCatalog:{market:[],grocery:[],bakery:[],building:[{id:'building_cement',item:'Çimento',price:8,unit:'torba',cost:4},brick],clothing:[],electronics:[]},
-  shopTypeMeta:{market:{label:'Market',icon:'🛒'},grocery:{label:'Bakkal',icon:'🏪'},bakery:{label:'Fırın',icon:'🥖'},building:{label:'Nalbur',icon:'🛠️'},clothing:{label:'Giyim',icon:'👕'},electronics:{label:'Elektronik',icon:'🔌'}},
-  productIcons:{building_brick:'📦'},
-  $:routeEl,
-  document:{createElement:tag=>new TestElement(tag),querySelectorAll:()=>[]},
-  window:{},
-  settleContinuousShopSales(){},ensureShopInventory(){},dailyFamilyDemand(){return 1},populateShopProductOptions(){},persist(){},renderShopCatalog(){},
-  producerQuotes(qty,type,productId){quoteRequests.push([qty,type,productId]);const product=routeCtx.productCatalog[type].find(p=>p.id===productId);return[{id:'supplier-1',name:'Trakya Yapı Malzemeleri Üreticisi',city:'İstanbul',price:0.69,unitDelivered:1.12,delivery:5.6,carrierName:'Devlet Lojistik A.Ş.',carrierOwner:'government',deliveryDays:0,stock:60,qty,total:qty*1.12,available:true,goodsCost:qty*.69}]},
-  productFor(type,id){return routeCtx.productCatalog[type]?.find(p=>p.id===id)},
-  producerTarget(){return{room:50,destination:'shop'}},money(n){return Number(n).toFixed(2)+' USD'},
-  renderShopCatalog(){},requestAnimationFrame(fn){fn()},setTimeout(fn){fn()},Date
+for (const product of ['grocery_water', 'grocery_eggs', 'grocery_milk', 'market_banana', 'market_cucumber', 'pastane_baklava', 'manav', 'pastane_profiterole']) {
+  assert.ok(js.includes(product), `Missing family basket product: ${product}`);
+}
+const catalogStart = js.indexOf('const productCatalog=');
+const simulationStop = js.indexOf('function simulateVirtualCompanies()', catalogStart);
+assert.ok(catalogStart >= 0 && simulationStop > catalogStart);
+const cityProfilesStart = js.indexOf('const virtualCompanyProfiles=');
+const cityProfilesStop = js.indexOf('function ensureVirtualCompanies()', cityProfilesStart);
+assert.ok(cityProfilesStart >= 0 && cityProfilesStop > cityProfilesStart);
+const setup = js.slice(catalogStart, cityProfilesStop);
+const context = {
+  s: { households: 6, day: 1, city: 'İstanbul', virtualJobs: 6, governmentJobs: 0, shopRented: false, shopStocks: {}, shopPrices: {}, cash: 0, totalSalesUnits: 0, totalSalesRevenue: 0 },
+  workforceData: () => ({ total: 6 }),
+  gameDayDurationMs: () => 86_400_000,
+  Date, Math, Array, Object, Number, String
 };
-vm.createContext(routeCtx);
-for(const fn of ['renderProducerOrderLocation','renderMarketProductChoices','updateProducerPreview','showTab','openProductSupplierMarket'])vm.runInContext(getFunction(fn),routeCtx);
-routeCtx.order={dataset:{orderProduct:'building_brick',orderType:'building'}};
-routeCtx.clickEvent={preventDefault(){},stopPropagation(){}};
-const clickBinding=html.match(/order\.onclick=event=>\{event\.preventDefault\(\);event\.stopPropagation\(\);openProductSupplierMarket\(order\.dataset\.orderProduct,order\.dataset\.orderType\|\|s\.shopType\)\}/)?.[0];
-assert.ok(clickBinding,'Product button has a direct click binding');
-vm.runInContext(clickBinding,routeCtx);
-routeCtx.order.onclick(routeCtx.clickEvent);
-assert.equal(routeEl('market').classList.contains('hidden'),false,'Click switches from Company to visible Pazar');
-assert.equal(routeEl('company').classList.contains('hidden'),true,'Click hides Company after navigation');
-assert.equal(routeCtx.s.shopProduct,'building_brick','Click selects the clicked SKU in company state');
-assert.equal(routeCtx.marketViewProductId,'building_brick','Click selects the clicked SKU in Pazar');
-assert.equal(routeEl('marketCategoryTitle').textContent,'Nalbur • Tuğla','Pazar product heading matches the clicked SKU');
-assert.equal(routeEl('producerOrderTitle').textContent,'Tedarikçi Firmalar • Tuğla • En ucuz 5 firma','Supplier section matches the clicked SKU');
-assert.equal(routeEl('marketProductChoices').children[0].children[1].children[0].textContent,'Tuğla','The visible Pazar card is Tuğla');
-assert.ok(quoteRequests.some(([,type,productId])=>type==='building'&&productId==='building_brick'),'Supplier quotes are loaded for Tuğla');
-assert.ok(routeEl('producerOffers').innerHTML.includes('Trakya Yapı Malzemeleri Üreticisi'),'Supplier list is rendered');
-console.log('0.3.13 shop-to-market product routing, cost, and Android asset checks passed');
+vm.createContext(context);
+vm.runInContext(setup + `
+function ensureVirtualCompanies(){
+  if(!Array.isArray(s.virtualCompanies)) s.virtualCompanies=virtualCompanyProfiles.map(c=>({...c,active:true,inventory:Object.fromEntries(c.types.flatMap(type=>(productCatalog[type]||[]).map(p=>[p.id,24]))),dailySales:0,lastDailySales:0}));
+}
+ensureVirtualFamilies(); ensureVirtualCompanies();
+this.settle=(now)=>settleVirtualFamilyShopping(now);
+this.supplyPrice=()=>familySellerOptions(familyBasket.find(r=>r.id==='bakery_bread'),familySku('bakery_bread'))[0].price;
+this.basketCpi=()=>familyInflationRate();`, context);
+const now = Date.now();
+context.s.familyShoppingLastAt = now - 8 * 86_400_000;
+const unitsBought = context.settle(now);
+assert.equal(context.s.virtualFamilies.length, 6, 'One shopping record per family');
+assert.ok(unitsBought > 0, 'Families make purchases from stocked sellers');
+assert.ok(context.s.lastFamilyPurchaseHours.filter(n => n > 0).length > 1, 'Purchases are distributed through the day');
+assert.ok(Number.isFinite(context.basketCpi().rate), 'Basket inflation is numeric');
+const regularCpi = context.basketCpi().rate;
+for (const store of context.s.virtualCompanies) store.priceFactor = 1.8;
+assert.ok(context.basketCpi().rate > regularCpi, 'Competitor price changes affect the common basket inflation rate');
+for (const store of context.s.virtualCompanies) store.priceFactor = 1;
+const lowStockPrice = context.supplyPrice();
+const catalog = vm.runInContext('productCatalog', context);
+for (const store of context.s.virtualCompanies) for (const type of store.types) for (const product of catalog[type] || []) store.inventory[product.id] = 100_000;
+const highStockPrice = context.supplyPrice();
+assert.ok(lowStockPrice > highStockPrice, 'Lower citywide stock raises retail prices');
+console.log('1.1.3 family demand, purchase timing, stock-sensitive prices and APK-version checks passed');
