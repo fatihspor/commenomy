@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const html=fs.readFileSync('index.html','utf8');
 const asset=fs.readFileSync('app/src/main/assets/index.html','utf8');
 assert.equal(html,asset,'Android assets must match');
-assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+21[\s\S]*versionName\s+'1\.1\.5'/,'APK version must be 1.1.3');
+assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+22[\s\S]*versionName\s+'1\.1\.6'/,'APK version must be 1.1.6');
 assert.ok(html.includes("money(x.unitDelivered)+'/'+unit+'</strong><strong class=\"producer-order-total\">'+(valid?'Toplam tutar: '+money(quote.total)"),'Supplier price shows one currency and a quantity-based amount');
 assert.ok(html.includes("if(orderTotal)orderTotal.textContent=valid?'Toplam tutar: '+money(quote.total):'Toplam tutar: miktar girince hesaplanır'"),'Supplier amount line updates with quantity changes');
 assert.ok(html.includes("const max=Number(input.max)||0,qty=Number(input.value);if(Number.isInteger(qty)&&qty>max)input.value=String(max);const id=input.dataset.producerQty;producerOrderQuantities[id]=input.value"),'Supplier quantity input is clamped to available stock and capacity');
@@ -108,4 +108,4 @@ assert.equal(routeEl('producerOrderTitle').textContent,'Tedarikçi Firmalar • 
 assert.equal(routeEl('marketProductChoices').children[0].children[1].children[0].textContent,'Tuğla','The visible Pazar card is Tuğla');
 assert.ok(quoteRequests.some(([,type,productId])=>type==='building'&&productId==='building_brick'),'Supplier quotes are loaded for Tuğla');
 assert.ok(routeEl('producerOffers').innerHTML.includes('Trakya Yapı Malzemeleri Üreticisi'),'Supplier list is rendered');
-console.log('0.3.13 shop-to-market product routing, cost, and Android asset checks passed');
+console.log('1.1.6 shop-to-market product routing, cost, and Android asset checks passed');
