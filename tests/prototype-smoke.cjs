@@ -89,7 +89,7 @@ const routeCtx={
   productCatalog:{market:[],grocery:[],bakery:[],building:[{id:'building_cement',item:'Çimento',price:8,unit:'torba',cost:4},brick],clothing:[],electronics:[]},
   shopTypeMeta:{market:{label:'Market',icon:'🛒'},grocery:{label:'Bakkal',icon:'🏪'},bakery:{label:'Fırın',icon:'🥖'},building:{label:'Nalbur',icon:'🛠️'},clothing:{label:'Giyim',icon:'👕'},electronics:{label:'Elektronik',icon:'🔌'}},
   productIcons:{building_brick:'📦'},
-  selected:{id:'main'},
+  selected:{id:'main',type:'building'},
   selectedCompanyShopId:'main',
   shopLocations(){return[{id:'main',name:'Fatih 1',type:routeCtx.s.shopType,street:5,primary:true}]},
   $:routeEl,
@@ -104,6 +104,7 @@ const routeCtx={
 vm.createContext(routeCtx);
 for(const fn of ['renderProducerOrderLocation','renderMarketProductChoices','updateProducerPreview','showTab','openProductSupplierMarket'])vm.runInContext(getFunction(fn),routeCtx);
 routeCtx.order={dataset:{orderProduct:'building_brick',orderType:'building'}};
+routeCtx.p={id:'building_brick'};
 routeCtx.clickEvent={preventDefault(){},stopPropagation(){}};
 const clickBinding=html.match(/order\.onclick=event=>\{event\.preventDefault\(\);event\.stopPropagation\(\);openProductSupplierMarket\(p\.id,selected\?\.type\|\|shopType,selected\?\.id\|\|selectedCompanyShopId\|\|'main'\)\}/)?.[0];
 assert.ok(clickBinding,'Product button has a direct click binding');
