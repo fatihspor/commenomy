@@ -35,7 +35,7 @@ assert.ok(html.includes("buyFromProducers(id,qty)"),'Supplier Al buttons call th
 assert.ok(html.includes("orderShopProduct(order.dataset.orderProduct,selectedCompanyShopId)"),'Company product button routes its exact product and selected shop');
 assert.ok(html.indexOf("showTab('market');renderShopCatalog()")<html.indexOf("renderProducerOrderLocation();$('producerOrderCard').classList.remove('hidden')"),'Marketplace opens before supplier offers render');
 assert.ok(html.includes("order.disabled=!selected;"),'Product buttons are enabled for a resolved shop');
-assert.ok(html.includes("const target=shops.find(x=>x.id===shopId)||shops[0]"),'Product orders resolve the selected shop by id');
+assert.ok(html.includes("target=shops.find(x=>x.id===shopId)||shops[0]"),'Product orders resolve the selected shop by id');
 assert.ok(html.includes("minus.onclick=event=>{event.preventDefault();event.stopPropagation();adjustShopCatalogPrice(p.id,-0.10)}")&&html.includes("plus.onclick=event=>{event.preventDefault();event.stopPropagation();adjustShopCatalogPrice(p.id,0.10)}"),'Catalog price steppers handle direct clicks');
 assert.ok(html.includes("supplierTargetShopId=targetShop.primary?null:targetShop.id"),'Marketplace purchases retain the selected branch as their target');
 assert.ok(html.includes('destinationShopId:branch?.id||null'),'Branch supplier orders keep the destination shop id');
