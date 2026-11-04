@@ -1,7 +1,5 @@
 name: Commenomy Android Beta
 on:
-  push:
-    branches: [main, feature/mine-company-card-no-apk, fix/1.1.31-price-controls]
   workflow_dispatch:
 concurrency:
   group: commenomy-android-beta-${{ github.sha }}
@@ -26,6 +24,7 @@ jobs:
           npm install --no-save --package-lock=false playwright@1.56.1
           npx playwright install --with-deps chromium
           node tests/browser-smoke.cjs
+          node tests/company-browser.cjs
       - name: Upload mobile card screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -115,7 +114,7 @@ jobs:
             grep -F 'Page load finished:' commenomy-logcat.txt
             ! grep -Fq 'Process: com.commenomy.game' commenomy-logcat.txt
             ! grep -Fq 'JavaScript error' commenomy-webview.txt
-            adb shell dumpsys package com.commenomy.game | grep -F 'versionName=1.1.31'
+            adb shell dumpsys package com.commenomy.game | grep -F 'versionName=1.1.32'
 
       - name: Upload emulator launch screenshot
         if: always()
