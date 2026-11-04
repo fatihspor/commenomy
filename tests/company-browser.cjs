@@ -37,7 +37,8 @@ const path=require('node:path'),fs=require('node:fs');
  assert.equal(await cake.locator('.shop-catalog-forecast small').innerText(),'Tahmini günlük satış');
  fs.mkdirSync('test-results',{recursive:true});
  for(const width of [320,360,390,768]){
-  await page.setViewportSize({width,height:844});await cake.scrollIntoViewIfNeeded();
+  await page.setViewportSize({width,height:844});await page.evaluate(()=>keepSelectedShopVisible());await cake.scrollIntoViewIfNeeded();
+  assert.ok(await page.locator('.company-shop-chip.selected').evaluate(el=>{const a=el.getBoundingClientRect(),b=el.parentElement.getBoundingClientRect();return a.left>=b.left-1&&a.right<=b.right+1}),`Selected shop fully visible at ${width}px`);
   const result=await cake.evaluate(card=>({height:card.getBoundingClientRect().height,clipped:[...card.querySelectorAll('input,button,b,strong,small')].filter(el=>el.getBoundingClientRect().width>0&&(el.scrollWidth>el.clientWidth+2||el.getBoundingClientRect().right>card.getBoundingClientRect().right+1)).map(el=>el.className+': '+el.textContent)}));
   assert.deepEqual(result.clipped,[],`No clipped card contents at ${width}px`);assert.ok(result.height<470,`Compact card height ${result.height} at ${width}px`);
   await page.evaluate(()=>{document.documentElement.style.scrollBehavior='auto';window.scrollTo(0,$('company').offsetTop)});await page.screenshot({path:`test-results/company-${width}.png`});
