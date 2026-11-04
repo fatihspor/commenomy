@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const html=fs.readFileSync('index.html','utf8');
 const asset=fs.readFileSync('app/src/main/assets/index.html','utf8');
 assert.equal(html,asset,'Android assets must match');
-assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+45[\s\S]*versionName\s+'1\.1\.29'/,'APK version must be 1.1.29');
+assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+46[\s\S]*versionName\s+'1\.1\.30'/,'APK version must be 1.1.30');
 assert.ok(html.includes('data-tab="fatih"')&&html.includes('id="fatihBasketRows"')&&html.includes('function renderFatihBasket()'),'Fatih tab displays the inflation basket');
 assert.ok(html.includes('function basketWeeklyData()')&&html.includes('slice(0,10)')&&html.includes('weeklyCost:row.quantity*unitPrice'),'Basket uses the cheapest ten available prices and weekly quantities');
 assert.ok(html.includes('value<.01||value>1000')&&html.includes('min="0.01"')&&html.includes('Math.max(.01,Math.round((current+delta)'),'All shop prices can be set to one cent');
@@ -28,7 +28,7 @@ assert.ok(html.includes('Math.log10(30/Math.max(.1,coverageDays))'),'Prices resp
 assert.ok(html.includes('price:virtualMarketPrice(c,type,product)'),'Displayed competitor prices use city stock pressure');
 assert.ok(html.includes('const price=virtualMarketPrice(c,type,p)'),'Competitors transact at the prices shown in the market');
 
-assert.ok(html.includes('rate*elapsed/gameDayDurationMs()'),'Actual sale timing uses the same game-day duration as forecasts');
+assert.ok(html.includes('settleHouseholdPurchases(now)'),'Retail transactions use the shared household clock');
 const js=html.match(/<script>([\s\S]*?)<\/script>/i)?.[1];
 assert.ok(js,'App script exists');
 new vm.Script(js);
@@ -56,21 +56,13 @@ const getFunction=(name)=>{const re=new RegExp('function '+name+'\\([^\\n]*?\\n?
 const retailCtx={s:{shopRented:true,shopConversion:null,shopStorageUse:'retail',shopType:'electronics',shopProduct:'electronics_charger',shopStocks:{electronics_charger:13},shopStock:13,shopAvgCosts:{electronics_charger:12.11},stockProductId:null,stock:0,pendingDeliveries:[],households:30,street:5,demand:0,virtualCompanies:[]},workforceData:()=>({total:30}),productFor:()=>({id:'electronics_charger',price:16,cost:8,demandMultiplier:1,unit:'adet'}),shopAverageCost:()=>12.11,streets:{1:{traffic:2,willing:1.5},5:{traffic:.7,willing:.85}},rivals:()=>[{id:'npc',price:16.32,stock:20,quality:1.08,trust:1.04,street:5}],$:()=>({value:'5'})};
 vm.createContext(retailCtx);
 vm.runInContext(html.match(/const retailDemandRates=\{[^;]+;/)[0],retailCtx);
-for(const fn of ['householdBasketRow','householdBaseDailyDemand','retailDailyDemand','citywideProductStock','marketSupplyPriceFactor','virtualMarketPrice','marketAllocation','forecastProductDailySales'])vm.runInContext(getFunction(fn),retailCtx);
+for(const fn of ['householdBasketRow','householdBaseDailyDemand','retailDailyDemand','citywideProductStock','marketSupplyPriceFactor','virtualMarketPrice','marketAllocation'])vm.runInContext(getFunction(fn),retailCtx);
 retailCtx.s.virtualCompanies=[{active:true,types:['electronics'],inventory:{electronics_charger:1000},priceFactor:1}];
 const price1000=vm.runInContext("virtualMarketPrice(s.virtualCompanies[0],'electronics',productFor('electronics','electronics_charger'))",retailCtx);
 retailCtx.s.virtualCompanies[0].inventory.electronics_charger=10000;
 const price10000=vm.runInContext("virtualMarketPrice(s.virtualCompanies[0],'electronics',productFor('electronics','electronics_charger'))",retailCtx);
 assert.ok(price1000>price10000,'Ten times more city stock lowers virtual competitors’ prices');
-retailCtx.rivals=()=>[{id:'npc',price:price10000,stock:20,quality:1.08,trust:1.04,street:5}];
-const backStreetSales=vm.runInContext("forecastProductDailySales('electronics_charger',18.11)",retailCtx);
-retailCtx.s.street=1;
-const mainStreetSales=vm.runInContext("forecastProductDailySales('electronics_charger',18.11)",retailCtx);
-retailCtx.s.street=5;
-const lowerPriceSales=vm.runInContext("forecastProductDailySales('electronics_charger',16)",retailCtx);
-assert.ok(backStreetSales>0,'Back streets retain daily sales');
-assert.ok(mainStreetSales>backStreetSales,'Main street traffic creates a sales advantage');
-assert.ok(lowerPriceSales>backStreetSales,'A more competitive price increases the daily sales estimate');
+// Price, street and initial-day forecasts are exercised by household-demand.cjs.
 const ctx={s:{shopType:'building',shopStocks:{},stockProductId:null,stock:0,shopAvgCosts:{},pendingDeliveries:[]},productFor:()=>({cost:4})};
 vm.createContext(ctx);
 vm.runInContext(getFunction('shopAverageCost'),ctx);

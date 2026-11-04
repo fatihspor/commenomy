@@ -13,7 +13,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate prototype and Android assets
-        run: node tests/prototype-smoke.cjs
+        run: |
+          node tests/prototype-smoke.cjs
+          node tests/rental-runtime.cjs
+          node tests/household-demand.cjs
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
