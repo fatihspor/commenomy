@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const html=fs.readFileSync('index.html','utf8');
 const asset=fs.readFileSync('app/src/main/assets/index.html','utf8');
 assert.equal(html,asset,'Android assets must match');
-assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+44[\s\S]*versionName\s+'1\.1\.28'/,'APK version must be 1.1.28');
+assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+45[\s\S]*versionName\s+'1\.1\.29'/,'APK version must be 1.1.29');
 assert.ok(html.includes('data-tab="fatih"')&&html.includes('id="fatihBasketRows"')&&html.includes('function renderFatihBasket()'),'Fatih tab displays the inflation basket');
 assert.ok(html.includes('function basketWeeklyData()')&&html.includes('slice(0,10)')&&html.includes('weeklyCost:row.quantity*unitPrice'),'Basket uses the cheapest ten available prices and weekly quantities');
 assert.ok(html.includes('value<.01||value>1000')&&html.includes('min="0.01"')&&html.includes('Math.max(.01,Math.round((current+delta)'),'All shop prices can be set to one cent');
