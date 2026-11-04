@@ -29,7 +29,7 @@ const path=require('node:path'),fs=require('node:fs');
  await price.fill('2,85');await price.press('Enter');assert.equal(await price.inputValue(),'2.85');
  await card.locator('[data-catalog-price-step="0.1"]').click();assert.equal(await price.inputValue(),'2.95');
  await card.locator('[data-catalog-price-step="-0.1"]').click();assert.equal(await price.inputValue(),'2.85');
- assert.equal(await card.locator('.shop-catalog-forecast small').innerText(),'Günlük tahmin');
+ assert.equal(await card.locator('.shop-catalog-forecast small').innerText(),'Tahmini günlük satış');
  fs.mkdirSync('test-results',{recursive:true});
  for(const width of [320,360,390,768]){
   await page.setViewportSize({width,height:900});await card.scrollIntoViewIfNeeded();

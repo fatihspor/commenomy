@@ -647,7 +647,7 @@ function renderShopCatalog(){
   const marginLabel=document.createElement('small');marginLabel.textContent='Birim kâr';
   const marginAmount=document.createElement('b');marginAmount.textContent=money(cost>0?price-cost:0);margin.classList.toggle('negative',cost>price);margin.append(marginLabel,marginAmount);
   const forecast=document.createElement('div');forecast.className='shop-catalog-forecast';
-  const forecastLabel=document.createElement('small');forecastLabel.textContent='Günlük tahmin';
+  const forecastLabel=document.createElement('small');forecastLabel.textContent='Tahmini günlük satış';
   const forecastAmount=document.createElement('b');forecastAmount.textContent=salesQuantity(isPrimary?forecastProductDailySales(p.id,price):forecastStoreProductDailySales(selected,p.id,price))+' '+p.unit;
   forecast.append(forecastLabel,forecastAmount);
   const costValue=document.createElement('div');costValue.className='shop-catalog-cost';
