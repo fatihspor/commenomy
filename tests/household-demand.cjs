@@ -55,3 +55,6 @@ run('s.households=35;ensureHouseholdAccounts();for(const family of s.householdAc
 assert.equal(run("s.householdAccounts.reduce((n,f)=>n+householdDemandToday(f,householdBasketRow('bakery','bakery_bread')),0)"),70,'35 families need exactly 70 daily breads');
 run("for(const row of inflationBasketSpec){const cycle=householdPurchaseCycle(row),total=s.householdAccounts.reduce((n,f)=>n+householdSchedule(f,row).quantity,0),expected=35*cycle.quantity;if(Math.abs(total-expected)>1e-8||Math.abs(cycle.quantity*7/cycle.days-row.quantity)>1e-8)throw Error(row.productId+' does not match the per-family basket consumption')}");
 console.log('All basket products scale with family count; 35 families require exactly 70 breads.');
+
+assert.equal(run('shopEmployeeCount({street:4})'),2,'A 50 m² shop employs two workers');
+assert.equal(run('shopEmployeeCount({street:3})'),1,'A shop below 50 m² employs one worker');
