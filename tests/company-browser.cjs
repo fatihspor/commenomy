@@ -54,6 +54,8 @@ const path=require('node:path'),fs=require('node:fs');
  // Secondary management shortcuts remain accessible below the workspace.
  await page.locator('#companyHome [data-company-view="factory"]').click();assert.ok(await page.locator('#factoryAssetCards').isVisible());
  await page.click('#companyBack');assert.ok(await page.locator('#shopCatalogPanel').isVisible(),'Back goes straight to products');
+ await page.evaluate(()=>{s=null;$('player').value='Fatih';start();showTab('company')});
+ assert.ok(await page.locator('#companyEmpty').isVisible());assert.ok(!(await page.locator('#shopCatalogPanel').isVisible()),'A fresh game hides the previous shop workspace');
  assert.deepEqual(errors,[]);
  console.log('Company 1.1.32 passed: empty state, direct shop entry, shop persistence/reload, attention ordering, live price/loss state, compact 320/360/390/768px cards, branch order confirmation/feedback, factory/back navigation and no JavaScript errors.');
  await browser.close();
