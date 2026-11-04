@@ -1,6 +1,6 @@
 plugins { id 'com.android.application' }
 android { namespace 'com.commenomy.game'; compileSdk 35
- defaultConfig { applicationId 'com.commenomy.game'; minSdk 24; targetSdk 35; versionCode 41; versionName '1.1.25' }
+ defaultConfig { applicationId 'com.commenomy.game'; minSdk 24; targetSdk 35; versionCode 42; versionName '1.1.26' }
  buildTypes { release { minifyEnabled false } }
  compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
 }
