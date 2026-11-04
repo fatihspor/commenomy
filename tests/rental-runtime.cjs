@@ -120,3 +120,15 @@ for(const type of run('Object.keys(productCatalog)'))for(const primary of [true,
  }
 }
 console.log(`Scroll/focus handler tests passed for ${stableInputs} product/shop combinations. Android keyboard behavior still requires device verification.`);
+for(const [value,expected] of [[0,'0,00'],[0.4,'0,40'],[0.006,'0,01'],[2,'2,00'],[70,'70,00'],[1.236,'1,24']]){
+ ctx.testQuantity=value;assert.equal(run('salesQuantity(testQuantity)'),expected,'All sales estimates retain exactly two decimals');
+}
+newGame();
+run("s.shopRented=true;s.street=1;s.additionalShops=[{id:'forecast-clothes',type:'clothing',street:3,productId:'clothing_trousers'}];selectedCompanyShopId='forecast-clothes';renderShopCatalog()");
+const forecastShop=run('shopLocations().find(shop=>shop.id===selectedCompanyShopId)');ctx.forecastShop=forecastShop;
+run("for(const company of s.virtualCompanies)if(company.types.includes('clothing'))company.inventory.clothing_trousers=100");
+const lowForecast=run("forecastStoreProductDailySales(forecastShop,'clothing_trousers',5)");
+const highForecast=run("forecastStoreProductDailySales(forecastShop,'clothing_trousers',50)");
+assert.ok(lowForecast>0&&lowForecast<1,'Infrequent clothing demand preserves a fractional daily estimate');
+assert.ok(lowForecast>highForecast,'Branch clothing forecast responds to its product price');
+console.log('Two-decimal formatting and fractional price-sensitive branch forecasts passed.');
