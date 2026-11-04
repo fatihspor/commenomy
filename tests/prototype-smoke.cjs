@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const html=fs.readFileSync('index.html','utf8');
 const asset=fs.readFileSync('app/src/main/assets/index.html','utf8');
 assert.equal(html,asset,'Android assets must match');
-assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+46[\s\S]*versionName\s+'1\.1\.30'/,'APK version must be 1.1.30');
+assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+47[\s\S]*versionName\s+'1\.1\.31'/,'APK version must be 1.1.31');
 assert.ok(html.includes('data-tab="fatih"')&&html.includes('id="fatihBasketRows"')&&html.includes('function renderFatihBasket()'),'Fatih tab displays the inflation basket');
 assert.ok(html.includes('function basketWeeklyData()')&&html.includes('slice(0,10)')&&html.includes('weeklyCost:row.quantity*unitPrice'),'Basket uses the cheapest ten available prices and weekly quantities');
 assert.ok(html.includes('value<.01||value>1000')&&html.includes('min="0.01"')&&html.includes('Math.max(.01,Math.round((current+delta)'),'All shop prices can be set to one cent');
@@ -18,10 +18,10 @@ assert.ok(html.includes("classList.toggle('election-candidate-saved',!!s.electio
 assert.ok(html.includes("money(x.unitDelivered)+'/'+unit+'</strong><strong class=\"producer-order-total\">'+(valid?'Toplam tutar: '+money(quote.total)"),'Supplier price shows one currency and a quantity-based amount');
 assert.ok(html.includes("if(orderTotal)orderTotal.textContent=valid?'Toplam tutar: '+money(quote.total):'Toplam tutar: miktar girince hesaplanır'"),'Supplier amount line updates with quantity changes');
 assert.ok(html.includes("const id=input.dataset.producerQty;producerOrderQuantities[id]=input.value"),'Supplier quantity remains visible when it exceeds stock or capacity so warning colors can appear');
-assert.ok(html.includes('saleAmount.readOnly=false;')&&html.includes('minus.disabled=false;')&&html.includes('plus.disabled=false;'),'Every shop can edit its catalog prices with the stepper');
+assert.ok(html.includes('saleAmount.readOnly=false;')&&html.includes('button.disabled=false;'),'Every shop can edit its catalog prices with the stepper');
 assert.ok(html.includes('shop.shopPrices=shop.shopPrices||{};prices=shop.shopPrices;prices[id]=value'),'Branch price changes are stored per shop');
 assert.ok(html.includes('demand=Math.max(0,s.demand*street.traffic)')&&html.includes('Math.min(limit,demand*scores[0]/total)'),'Daily sales preserve fractional demand instead of flooring it to zero');
-assert.ok(html.includes("forecast.innerHTML='<small>Tahmini günlük satış</small><b>'+salesQuantity(daily)+' '+p.unit+'</b>'"),'Catalog displays fractional daily unit estimates in Turkish format');
+assert.ok(html.includes("forecastAmount.textContent=salesQuantity("),'Catalog displays fractional daily unit estimates in Turkish format');
 assert.ok(html.includes('salesAccruals[p.id]'),'Virtual competitors accumulate fractional sales and eventually sell whole units');
 assert.ok(html.includes('function citywideProductStock(type,id)'),'Citywide product stock includes competitors, shop, warehouse, and pending orders');
 assert.ok(html.includes('Math.log10(30/Math.max(.1,coverageDays))'),'Prices respond to citywide stock coverage');
@@ -47,7 +47,7 @@ assert.ok(html.includes("order.dataset.orderProduct=p.id")&&html.includes("order
 assert.ok(html.includes('reserved=id===1?1:0'),'Street 1 reservation stays fixed so the displayed vacancy decreases after a player rental');
 assert.ok(html.includes('order.onclick=event=>{event.preventDefault();event.stopPropagation();orderShopProduct(p.id,selected.id)}'),'Every dynamically rendered product button directly routes its exact product to its selected shop');
 assert.ok(html.includes("target=shops.find(x=>x.id===shopId)||shops[0]"),'Product orders resolve the selected shop by id');
-assert.ok(html.includes("minus.onclick=event=>{event.preventDefault();event.stopPropagation();adjustShopCatalogPrice(p.id,-0.10)}")&&html.includes("plus.onclick=event=>{event.preventDefault();event.stopPropagation();adjustShopCatalogPrice(p.id,0.10)}"),'Catalog price steppers handle direct clicks');
+assert.ok(html.includes("button.onclick=event=>{event.preventDefault();event.stopPropagation();adjustShopCatalogPrice(p.id,delta)}"),'Catalog price steppers handle direct clicks');
 assert.ok(html.includes("supplierTargetShopId=targetShop.primary?null:targetShop.id"),'Marketplace purchases retain the selected branch as their target');
 assert.ok(html.includes('destinationShopId:branch?.id||null'),'Branch supplier orders keep the destination shop id');
 assert.ok(html.includes("marketBrowseType=type;marketViewProductId=productId;supplierMarketProductId=productId"),'Product selection and sector are carried to the marketplace');
@@ -74,7 +74,7 @@ vm.runInContext("recordShopPurchaseCost('building_cement',10,60)",ctx);
 assert.equal(ctx.s.shopAvgCosts.building_cement,5.7,'New purchases update weighted average cost');
 
 class TestElement{
-  constructor(id=''){this.id=id;this.value='';this.textContent='';this.innerHTML='';this.children=[];this.dataset={};this.classes=new Set();this.classList={add:x=>this.classes.add(x),remove:x=>this.classes.delete(x),toggle:(x,v)=>{if(v)this.classes.add(x);else this.classes.delete(x)},contains:x=>this.classes.has(x)};this.disabled=false}
+  constructor(id=''){this.id=id;this.style={};this.value='';this.textContent='';this.innerHTML='';this.children=[];this.dataset={};this.classes=new Set();this.classList={add:x=>this.classes.add(x),remove:x=>this.classes.delete(x),toggle:(x,v)=>{if(v)this.classes.add(x);else this.classes.delete(x)},contains:x=>this.classes.has(x)};this.disabled=false}
   append(...items){this.children.push(...items)}
   appendChild(item){this.children.push(item);return item}
   replaceChildren(...items){this.children=[...items]}
@@ -102,7 +102,7 @@ const routeCtx={
   renderShopCatalog(){},requestAnimationFrame(fn){fn()},setTimeout(fn){fn()},Date
 };
 vm.createContext(routeCtx);
-for(const fn of ['renderProducerOrderLocation','renderMarketProductChoices','updateProducerPreview','showTab','openProductSupplierMarket','orderShopProduct','handleShopCatalogOrderClick'])vm.runInContext(getFunction(fn),routeCtx);
+for(const fn of ['createProductArtwork','renderProducerOrderLocation','renderMarketProductChoices','updateProducerPreview','showTab','openProductSupplierMarket','orderShopProduct','handleShopCatalogOrderClick'])vm.runInContext(getFunction(fn),routeCtx);
 
 const activePrimaryProductBeforeRoute=routeCtx.s.shopProduct;routeCtx.openProductSupplierMarket('building_brick','building','main');
 assert.equal(routeEl('market').classList.contains('hidden'),false,'Click switches from Company to visible Pazar');

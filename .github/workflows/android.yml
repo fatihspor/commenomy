@@ -17,6 +17,22 @@ jobs:
           node tests/prototype-smoke.cjs
           node tests/rental-runtime.cjs
           node tests/household-demand.cjs
+          node tests/modern-runtime.cjs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate mobile product cards in Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+          node tests/browser-smoke.cjs
+      - name: Upload mobile card screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Commenomy-Mobile-Card-Checks
+          path: test-results/
+          if-no-files-found: ignore
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -98,7 +114,8 @@ jobs:
             timeout 30s adb shell logcat -d -v brief > commenomy-logcat.txt
             grep -F 'Page load finished:' commenomy-logcat.txt
             ! grep -Fq 'Process: com.commenomy.game' commenomy-logcat.txt
-            ! grep -Fq 'Process: com.commenomy.game' commenomy-logcat.txt
+            ! grep -Fq 'JavaScript error' commenomy-webview.txt
+            adb shell dumpsys package com.commenomy.game | grep -F 'versionName=1.1.31'
 
       - name: Upload emulator launch screenshot
         if: always()
