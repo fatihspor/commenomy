@@ -1,5 +1,7 @@
 name: Commenomy Android Beta
 on:
+  push:
+    branches: [build/1.1.32-apk]
   workflow_dispatch:
 concurrency:
   group: commenomy-android-beta-${{ github.sha }}
