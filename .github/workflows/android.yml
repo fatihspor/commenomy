@@ -1,7 +1,7 @@
 name: Commenomy Android Beta
 on:
   push:
-    branches: [main, feature/mine-company-card-no-apk]
+    branches: [main, feature/mine-company-card-no-apk, fix/1.1.31-price-controls]
   workflow_dispatch:
 concurrency:
   group: commenomy-android-beta-${{ github.sha }}
