@@ -53,5 +53,5 @@ console.log('Household demand passed: 33 trousers, 66 daily breads, price compet
 run('ensureVirtualCompanies=originalEnsureVirtualCompanies;householdGameDayProgress=()=>0');newGame();
 run('s.households=35;ensureHouseholdAccounts();for(const family of s.householdAccounts){family.inventory={};family.purchaseSchedule={}}');
 assert.equal(run("s.householdAccounts.reduce((n,f)=>n+householdDemandToday(f,householdBasketRow('bakery','bakery_bread')),0)"),70,'35 families need exactly 70 daily breads');
-run("for(const row of inflationBasketSpec){const total=s.householdAccounts.reduce((n,f)=>n+householdDemandToday(f,row),0),expected=35*householdPurchaseCycle(row).quantity;if(Math.abs(total-expected)>1e-8)throw Error(row.productId+' does not scale with 35 families')}");
+run("for(const row of inflationBasketSpec){const cycle=householdPurchaseCycle(row),total=s.householdAccounts.reduce((n,f)=>n+householdSchedule(f,row).quantity,0),expected=35*cycle.quantity;if(Math.abs(total-expected)>1e-8||Math.abs(cycle.quantity*7/cycle.days-row.quantity)>1e-8)throw Error(row.productId+' does not match the per-family basket consumption')}");
 console.log('All basket products scale with family count; 35 families require exactly 70 breads.');
