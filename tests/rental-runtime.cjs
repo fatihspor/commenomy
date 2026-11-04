@@ -95,3 +95,28 @@ for(const type of run('Object.keys(productCatalog)'))for(const primary of [true,
  }
 }
 console.log(`Manual price entry passed for ${manualPrices} product/shop combinations across all seven sectors.`);
+let stableInputs=0;
+ctx.window.scrollTo=(x,y)=>{ctx.window.scrollX=x;ctx.window.scrollY=y};
+for(const type of run('Object.keys(productCatalog)'))for(const primary of [true,false]){
+ newGame();ctx.priceType=type;ctx.isPrimary=primary;
+ run("shopPriceEditSession=null;s.shopRented=true;s.street=5;s.shopType=isPrimary?priceType:'grocery';s.shopProduct=defaultProductId(s.shopType);s.additionalShops=isPrimary?[]:[{id:'scroll-branch',type:priceType,street:5,productId:defaultProductId(priceType)}];selectedCompanyShopId=isPrimary?'main':'scroll-branch';renderShopCatalog()");
+ const productIds=run('productCatalog[priceType].map(p=>p.id)');
+ for(const id of productIds){
+  const input=descendant(els.get('shopCatalogCards'),x=>x.tagName==='INPUT'&&x.dataset.catalogPrice===id);
+  const anchor=650+stableInputs;ctx.window.scrollX=0;ctx.window.scrollY=anchor;
+  input.focus=options=>{assert.equal(options.preventScroll,true);document.activeElement=input;input.onfocus()};
+  input.blur=()=>{document.activeElement=null;input.onblur()};
+  input.onpointerdown({button:0,preventDefault(){}});
+  assert.equal(ctx.window.scrollY,anchor,'Focusing a price preserves the product position');
+  const before=els.get('shopCatalogCards').children[0];
+  run('renderShopCatalog()');
+  assert.equal(els.get('shopCatalogCards').children[0],before,'Background updates do not replace a focused price input');
+  ctx.window.scrollY=0;input.value='4,50';input.oninput({stopPropagation(){}});
+  assert.equal(ctx.window.scrollY,anchor,'Typing restores the same product position');
+  ctx.window.scrollY=0;input.onkeydown({key:'Enter',preventDefault(){}});
+  assert.equal(ctx.window.scrollY,anchor,'Confirming and blurring keep the same product position');
+  assert.equal(run('shopPriceEditSession'),null,'Editing session ends after confirmation');
+  stableInputs++;
+ }
+}
+console.log(`Scroll/focus handler tests passed for ${stableInputs} product/shop combinations. Android keyboard behavior still requires device verification.`);
