@@ -22,6 +22,7 @@ const path=require('node:path'),fs=require('node:fs');
  assert.equal(await page.locator('.company-shop-chip.selected').getAttribute('data-company-shop'),'branch-test');
  assert.ok(await page.locator('[data-product-id="pastane_cake"]').count());
  assert.equal(await page.evaluate(()=>s.lastCompanyShopId),'branch-test');
+ assert.equal(await page.locator('.company-shop-chip.selected').evaluate(el=>getComputedStyle(el).borderTopWidth),'2px','Selected shop keeps its visible highlighted border');
  await page.evaluate(()=>showTab('bank'));await page.evaluate(()=>showTab('company'));
  assert.equal(await page.locator('.company-shop-chip.selected').getAttribute('data-company-shop'),'branch-test');
  await page.reload();
