@@ -44,3 +44,23 @@ for(const type of types)for(const street of [1,2,3,4,5]){
  rent(type,street,`${type} branch ${street}`);branches++;
 }
 console.log(`Rental runtime tests passed: reported Street 1 scenario, ${primary} primary rentals and ${branches} branch rentals; both indicators, colors, button state and persisted state checked.`);
+newGame();run('s.households=40;render()');
+assert.equal(els.get('basketPopulation').textContent,'120 kişi','Population shows all three family members');
+run('s.households=50;render()');
+assert.equal(els.get('basketPopulation').textContent,'150 kişi','Population updates during normal render without a tab change');
+run('s.households=40;render()');
+assert.equal(els.get('basketPopulation').textContent,'120 kişi','Population follows current household state');
+assert.ok(!els.has('basketWeeklyInflation'),'Weekly price-change card has been replaced');
+run("s.shopRented=true;s.street=1;s.additionalShops=[{id:'test-branch',street:5,type:'market'}];s.factorySizes=[40];s.warehouseSizes=[20];s.households=30;render()");
+assert.equal(run('workforceData().shop'),3,'20 m² main shop has one worker; 60 m² branch has two');
+assert.equal(run('workforceData().factory'),2,'40 m² factory has two workers');
+assert.equal(run('workforceData().warehouse'),1,'20 m² warehouse has one worker');
+assert.equal(run('workforceData().player'),6,'All player workplaces contribute to employment');
+assert.equal(run('workforceData().government'),4,'Public staffing follows private employment');
+assert.equal(run('s.households'),40,'New workers bring families until all jobs have a household');
+assert.equal(els.get('basketPopulation').textContent,'120 kişi','Live population matches the workforce-driven household total');
+const accountCount=run('s.householdAccounts.length');
+run('render();render()');
+assert.equal(run('s.households'),40,'Repeated renders do not create extra families');
+assert.equal(run('s.householdAccounts.length'),accountCount,'Repeated renders do not create duplicate household accounts');
+console.log('Population and workforce integration tests passed.');
