@@ -64,3 +64,34 @@ run('render();render()');
 assert.equal(run('s.households'),40,'Repeated renders do not create extra families');
 assert.equal(run('s.householdAccounts.length'),accountCount,'Repeated renders do not create duplicate household accounts');
 console.log('Population and workforce integration tests passed.');
+function descendant(root,predicate){for(const child of root.children){if(predicate(child))return child;const found=descendant(child,predicate);if(found)return found}return null}
+let manualPrices=0;
+for(const type of run('Object.keys(productCatalog)'))for(const primary of [true,false]){
+ newGame();
+ ctx.priceType=type;ctx.isPrimary=primary;
+ run("s.shopRented=true;s.street=5;s.shopType=isPrimary?priceType:'grocery';s.shopProduct=defaultProductId(s.shopType);s.additionalShops=isPrimary?[]:[{id:'manual-branch',name:'Manual test',type:priceType,street:5,productId:defaultProductId(priceType)}];selectedCompanyShopId=isPrimary?'main':'manual-branch';renderShopCatalog()");
+ for(const card of els.get('shopCatalogCards').children){
+  const input=descendant(card,x=>x.tagName==='INPUT'&&x.dataset.catalogPrice);
+  assert.ok(input&&!input.readOnly&&!input.disabled,'Each product has an editable price');
+  const id=input.dataset.catalogPrice;input.value='2,85';input.oninput({stopPropagation(){}});
+  let saved=JSON.parse(data.get('commenomy-demo-v2'));
+  assert.equal((primary?saved:saved.additionalShops[0]).shopPrices[id],2.85,'Manual comma-decimal price survives saving');
+  input.value='3.25';input.oninput({stopPropagation(){}});
+  saved=JSON.parse(data.get('commenomy-demo-v2'));
+  assert.equal((primary?saved:saved.additionalShops[0]).shopPrices[id],3.25,'Manual dot-decimal price survives saving');
+  input.value='';input.oninput({stopPropagation(){}});
+  saved=JSON.parse(data.get('commenomy-demo-v2'));
+  assert.equal((primary?saved:saved.additionalShops[0]).shopPrices[id],3.25,'Clearing while typing preserves the last valid price');
+  const plus=descendant(card,x=>x.tagName==='BUTTON'&&x.textContent==='+');
+  const minus=descendant(card,x=>x.tagName==='BUTTON'&&x.textContent==='−');
+  const click={preventDefault(){},stopPropagation(){}};
+  plus.onclick(click);
+  saved=JSON.parse(data.get('commenomy-demo-v2'));
+  assert.equal((primary?saved:saved.additionalShops[0]).shopPrices[id],3.35,'Plus still works after manual entry');
+  minus.onclick(click);
+  saved=JSON.parse(data.get('commenomy-demo-v2'));
+  assert.equal((primary?saved:saved.additionalShops[0]).shopPrices[id],3.25,'Minus still works after manual entry');
+  manualPrices++;
+ }
+}
+console.log(`Manual price entry passed for ${manualPrices} product/shop combinations across all seven sectors.`);
