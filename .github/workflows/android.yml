@@ -1,5 +1,7 @@
 name: Commenomy Android Beta
 on:
+  push:
+    branches: [release/1.1.33-apk]
   workflow_dispatch:
 concurrency:
   group: commenomy-android-beta-${{ github.sha }}
@@ -16,6 +18,7 @@ jobs:
           node tests/rental-runtime.cjs
           node tests/household-demand.cjs
           node tests/modern-runtime.cjs
+          node tests/economy-133.cjs
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -114,7 +117,7 @@ jobs:
             grep -F 'Page load finished:' commenomy-logcat.txt
             ! grep -Fq 'Process: com.commenomy.game' commenomy-logcat.txt
             ! grep -Fq 'JavaScript error' commenomy-webview.txt
-            adb shell dumpsys package com.commenomy.game | grep -F 'versionName=1.1.32'
+            adb shell dumpsys package com.commenomy.game | grep -F 'versionName=1.1.33'
 
       - name: Upload emulator launch screenshot
         if: always()

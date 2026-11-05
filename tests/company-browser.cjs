@@ -11,6 +11,9 @@ const path=require('node:path'),fs=require('node:fs');
  await page.click('#companyEmpty button');assert.ok(await page.locator('#land').isVisible());
  await page.evaluate(()=>{s.cash=100000;$('rentalSector').value='grocery';changeRentalSector();selectStreetFromStatus(1);$('shopNameInput').value='Fatih 1';rentShop();s.additionalShops=[{id:'branch-test',name:'Fatih 2',type:'pastane',street:2,productId:'pastane_cake',shopStocks:{pastane_cake:10},shopPrices:{pastane_cake:5},shopAvgCosts:{pastane_cake:3}}];for(const p of productCatalog.grocery)s.shopStocks[p.id]=20;s.shopStocks.grocery_water=20;s.shopStocks.grocery_milk=0;s.shopPrices.grocery_eggs=1;s.shopAvgCosts.grocery_eggs=2;showTab('company')});
  assert.ok(await page.locator('#shopCatalogPanel').isVisible(),'Company opens products directly');
+ assert.match(await page.locator('[data-product-id="grocery_water"] .shop-catalog-stock-value b').innerText(),/600 şişe/);
+ assert.match(await page.locator('[data-product-id="grocery_eggs"] .shop-catalog-stock-value b').innerText(),/900 adet/);
+ assert.equal(await page.locator('.shop-catalog-city-need').count(),6,'Each product shows current city need');
  assert.equal(await page.locator('#companySnapshot').count(),0);assert.equal(await page.locator('#companyInfo').count(),0);
  assert.equal(await page.locator('.company-shop-chip').count(),2);
  assert.equal(await page.locator('.company-shop-chip.selected').getAttribute('data-company-shop'),'main');
@@ -57,7 +60,7 @@ const path=require('node:path'),fs=require('node:fs');
   await page.setViewportSize({width,height:844});await cake.scrollIntoViewIfNeeded();
   assert.ok(await page.locator('#shopTiles').evaluate(wrap=>{const b=wrap.getBoundingClientRect();return wrap.scrollWidth<=wrap.clientWidth+1&&[...wrap.children].every(el=>{const a=el.getBoundingClientRect();return a.left>=b.left-1&&a.right<=b.right+1&&a.top>=b.top-1&&a.bottom<=b.bottom+1})}),`All shop borders fully visible at ${width}px`);
   const result=await cake.evaluate(card=>({height:card.getBoundingClientRect().height,clipped:[...card.querySelectorAll('input,button,b,strong,small')].filter(el=>el.getBoundingClientRect().width>0&&(el.scrollWidth>el.clientWidth+2||el.getBoundingClientRect().right>card.getBoundingClientRect().right+1)).map(el=>el.className+': '+el.textContent)}));
-  assert.deepEqual(result.clipped,[],`No clipped card contents at ${width}px`);assert.ok(result.height<470,`Compact card height ${result.height} at ${width}px`);
+  assert.deepEqual(result.clipped,[],`No clipped card contents at ${width}px`);assert.ok(result.height<510,`Compact card height ${result.height} at ${width}px`);
   await page.evaluate(()=>{document.documentElement.style.scrollBehavior='auto';window.scrollTo(0,$('company').offsetTop)});await page.screenshot({path:`test-results/company-${width}.png`});
  }
  // Real order confirmation returns to the same branch with amount and delivery feedback.
@@ -74,6 +77,6 @@ const path=require('node:path'),fs=require('node:fs');
  await page.evaluate(()=>{s=null;$('player').value='Fatih';start();showTab('company')});
  assert.ok(await page.locator('#companyEmpty').isVisible());assert.ok(!(await page.locator('#shopCatalogPanel').isVisible()),'A fresh game hides the previous shop workspace');
  assert.deepEqual(errors,[]);
- console.log('Company 1.1.32 passed: empty state, direct shop entry, shop persistence/reload, fixed ordering, explicit filters and counts, stable filtered cards, live price/loss state, compact 320/360/390/768px cards, branch order confirmation/feedback, factory/back navigation and no JavaScript errors.');
+ console.log('Company 1.1.33 passed: empty state, direct shop entry, shop persistence/reload, fixed ordering, explicit filters and counts, stable filtered cards, live price/loss state, compact 320/360/390/768px cards, branch order confirmation/feedback, factory/back navigation and no JavaScript errors.');
  await browser.close();
 })().catch(e=>{console.error(e);process.exit(1)});

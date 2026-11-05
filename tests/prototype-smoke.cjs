@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const html=fs.readFileSync('index.html','utf8');
 const asset=fs.readFileSync('app/src/main/assets/index.html','utf8');
 assert.equal(html,asset,'Android assets must match');
-assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+48[\s\S]*versionName\s+'1\.1\.32'/,'APK version must be 1.1.32');
+assert.match(fs.readFileSync('app/build.gradle','utf8'),/versionCode\s+49[\s\S]*versionName\s+'1\.1\.33'/,'APK version must be 1.1.33');
 assert.ok(html.includes('data-tab="fatih"')&&html.includes('id="fatihBasketRows"')&&html.includes('function renderFatihBasket()'),'Fatih tab displays the inflation basket');
 assert.ok(html.includes('function basketWeeklyData()')&&html.includes('slice(0,10)')&&html.includes('weeklyCost:row.quantity*unitPrice'),'Basket uses the cheapest ten available prices and weekly quantities');
 assert.ok(html.includes('value<.01||value>1000')&&html.includes('min="0.01"')&&html.includes('Math.max(.01,Math.round((current+delta)'),'All shop prices can be set to one cent');
@@ -121,7 +121,7 @@ const primaryProductBeforeBranchRoute=routeCtx.s.shopProduct;routeCtx.openProduc
 assert.equal(routeCtx.supplierTargetShopId,'branch-market','Branch product purchase keeps Fatih 2 as the destination');
 assert.equal(routeCtx.s.shopProduct,primaryProductBeforeBranchRoute,'Opening a branch purchase does not change the primary shop product');
 assert.ok(quoteRequests.some(([,type,productId])=>type==='market'&&productId==='market_tomato'),'Supplier quotes load for the selected branch product');
-const branchTargetCtx={s:{additionalShops:[marketBranch]},supplierTargetShopId:'branch-market',marketViewProductId:'market_tomato',marketBrowseType:'market',ensureShopInventory(){},pendingOrderQty:()=>5,shopCapacity:()=>60};
+const branchTargetCtx={s:{additionalShops:[marketBranch]},supplierTargetShopId:'branch-market',marketViewProductId:'market_tomato',marketBrowseType:'market',ensureShopInventory(){},pendingOrderQty:()=>5,shopProductCapacity:()=>60};
 vm.createContext(branchTargetCtx);vm.runInContext(getFunction('producerTarget'),branchTargetCtx);
 const branchTarget=vm.runInContext('producerTarget()',branchTargetCtx);
 assert.equal(branchTarget.branch,true,'Selected secondary shop can receive a supplier order');
