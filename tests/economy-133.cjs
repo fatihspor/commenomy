@@ -22,6 +22,8 @@ run('deliverPendingOrders()');assert.equal(run('s.shopStocks.grocery_eggs'),100,
 run("s.additionalShops=[{id:'b',name:'Fatih 2',type:'grocery',street:3,productId:'grocery_water',shopStock:0,shopStocks:{grocery_water:0}}];supplierTargetShopId='b';marketViewProductId='grocery_water';s.shopStorageUse='warehouse'");
 assert.equal(run('producerTarget().room'),1200,'Main shop warehouse mode does not change branch retail capacity');
 run("s.shopStorageUse='retail';s.shopStocks.grocery_water=700;s.shopStock=700;supplierTargetShopId=null;supplierMarketProductId='grocery_water'");assert.equal(run('producerTarget().room'),0);assert.equal(run('s.shopStock'),700,'Upgrades retain inventory above a new shelf limit');
+run("s.shopStocks.grocery_water=20;s.shopStock=20;s.shopAvgCosts={grocery_water:2};s.pendingDeliveries=[{destinationShopId:'b',destination:'shop',productId:'grocery_water',qty:100,cost:10000}]");
+assert.equal(run("shopAverageCost('grocery_water')"),2,'A branch order does not alter the primary shop average cost');
 // A city needs the family basket once, regardless of how many shops offer it.
 run('householdGameDayProgress=()=>0');newGame();
 run("s.shopRented=true;s.street=1;s.shopType='bakery';s.shopProduct='bakery_bread';s.shopPrices={bakery_bread:1};s.shopPrice=1;s.shopStocks={bakery_bread:0};s.shopStock=0;s.additionalShops=[{id:'bread-b',name:'Second bakery',type:'bakery',street:3,productId:'bakery_bread',shopStock:0,shopStocks:{bakery_bread:0},shopPrices:{bakery_bread:1}}];s.virtualCompanies=[];ensureVirtualCompanies=()=>{};s.households=33;ensureHouseholdAccounts();for(const f of s.householdAccounts){f.cash=100000;f.purchaseSchedule={};f.inventory={};householdSchedule(f,householdBasketRow('bakery','bakery_bread')).minute=0}");
