@@ -15,7 +15,7 @@ run("$('marketSearch').value='gömlek';marketBrowseType='market';renderMarketPro
 assert.ok(els.get('marketSearchResults').children.some(el=>el.dataset.marketProductOpen==='clothing_tshirt'),'Global search finds clothing outside the selected category');
 assert.ok(els.get('marketCategoryTabs').children.some(el=>el.dataset.marketCategory==='clothing'),'Clothing has a real marketplace tab');
 run("s.shopType='grocery';s.shopProduct='grocery_water';s.shopStocks={grocery_water:20,grocery_eggs:0};s.street=1;s.warehouses=0;s.pendingDeliveries=[{qty:5,destination:'shop',destinationShopId:'branch',productId:'grocery_eggs'}];supplierTargetShopId=null;marketViewProductId='grocery_eggs';marketBrowseType='grocery'");
-assert.equal(run('producerTarget().room'),run('shopCapacity(1)'),'A full water slot does not block the egg slot in the primary shop');
+assert.equal(run('producerTarget().room'),run("primaryProductCapacity('grocery_eggs')"),'A full water slot does not block the egg slot in the primary shop');
 assert.equal(run("pendingOrderQty('shop',null,'grocery_eggs')"),0,'Branch deliveries do not reserve primary shop capacity');
 assert.equal(run("pendingOrderQty('shop','branch','grocery_eggs')"),5);
 (async()=>{
