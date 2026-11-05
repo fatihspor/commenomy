@@ -60,6 +60,7 @@ const path=require('node:path'),fs=require('node:fs');
   await page.setViewportSize({width,height:844});await cake.scrollIntoViewIfNeeded();
   assert.ok(await page.locator('#shopTiles').evaluate(wrap=>{const b=wrap.getBoundingClientRect();return wrap.scrollWidth<=wrap.clientWidth+1&&[...wrap.children].every(el=>{const a=el.getBoundingClientRect();return a.left>=b.left-1&&a.right<=b.right+1&&a.top>=b.top-1&&a.bottom<=b.bottom+1})}),`All shop borders fully visible at ${width}px`);
   const result=await cake.evaluate(card=>({height:card.getBoundingClientRect().height,clipped:[...card.querySelectorAll('input,button,b,strong,small')].filter(el=>el.getBoundingClientRect().width>0&&(el.scrollWidth>el.clientWidth+2||el.getBoundingClientRect().right>card.getBoundingClientRect().right+1)).map(el=>el.className+': '+el.textContent)}));
+  assert.ok(await cake.locator('.shop-catalog-city-need').evaluate(row=>{const label=row.querySelector('small').getBoundingClientRect(),value=row.querySelector('b').getBoundingClientRect();return label.right+5<=value.left}),`City need label and value stay separate at ${width}px`);
   assert.deepEqual(result.clipped,[],`No clipped card contents at ${width}px`);assert.ok(result.height<510,`Compact card height ${result.height} at ${width}px`);
   await page.evaluate(()=>{document.documentElement.style.scrollBehavior='auto';window.scrollTo(0,$('company').offsetTop)});await page.screenshot({path:`test-results/company-${width}.png`});
  }
